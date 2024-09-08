@@ -43,7 +43,6 @@ export function MenuBar({ toolOptions, onUpdateToolOptions, tables, onUpdateTabl
                     if (importedState.toolOptions && importedState.tables) {
                         onUpdateToolOptions(importedState.toolOptions);
                         onUpdateTables(importedState.tables);
-                        alert('State imported successfully!');
                     } else {
                         alert('Invalid JSON structure');
                     }
