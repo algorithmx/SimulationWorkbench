@@ -360,7 +360,6 @@ main {
   border: 2px solid #4CAF50;
 }
 
-// Modify these styles to prevent overlapping
 .tool-flow-table td.group-cell:not(.group-start) {
   border-top: none;
 }
@@ -368,8 +367,6 @@ main {
 .tool-flow-table td.group-cell:not(.group-end) {
   border-bottom: none;
 }
-
-// ... rest of the existing styles ...
 
 .pop-up-window {
     position: absolute;
@@ -442,3 +439,24 @@ main {
 }
 
 /* ... rest of the existing styles ... */
+
+/* Hash Popup Styles */
+.hash-popup {
+  position: absolute;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  z-index: 1000;
+}
+
+.hash-popup input {
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+.hash-popup button {
+  margin-right: 5px;
+}
