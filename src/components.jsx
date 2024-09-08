@@ -107,12 +107,12 @@ function ToolFlowTable({ data, onCellChange, onAddColumn, onDeleteColumn, onAddT
                         <th key={index}>
                             <div className="parameter-cell">
                                 <div className="parameter-cell-line">
-                                    <span
-                                        contentEditable
-                                        onBlur={(e) => onCellChange(1, index, e.target.textContent)}
-                                    >
-                                        {cell}
-                                    </span>
+                                    <input
+                                        type="text"
+                                        value={cell}
+                                        onChange={(e) => onCellChange(1, index, e.target.value)}
+                                        className="parameter-input"
+                                    />
                                 </div>
                                 <div className="parameter-cell-line">
                                     <div className="parameter-cell-buttons">
@@ -145,29 +145,20 @@ function ToolFlowTable({ data, onCellChange, onAddColumn, onDeleteColumn, onAddT
             <tbody>
                 {valueRows.map((row, rowIndex) => (
                     <tr key={rowIndex}>
-                        {row.map((cell, colIndex) => (
-                            rowIndex >= 2 ? (
+                        {parametersRow.map((_, colIndex) => (
+                            <td key={colIndex}>
                                 <ContextMenuTrigger
-                                    key={colIndex}
                                     id="cell-context-menu"
                                     collect={() => ({ rowIndex: rowIndex + 2, colIndex })}
                                 >
-                                    <td
-                                        contentEditable
-                                        onBlur={(e) => onCellChange(rowIndex + 2, colIndex, e.target.textContent)}
-                                    >
-                                        {cell}
-                                    </td>
+                                    <input
+                                        type="text"
+                                        value={row[colIndex] || ''}
+                                        onChange={(e) => onCellChange(rowIndex + 2, colIndex, e.target.value)}
+                                        className="cell-input"
+                                    />
                                 </ContextMenuTrigger>
-                            ) : (
-                                <td
-                                    key={colIndex}
-                                    contentEditable
-                                    onBlur={(e) => onCellChange(rowIndex + 2, colIndex, e.target.textContent)}
-                                >
-                                    {cell}
-                                </td>
-                            )
+                            </td>
                         ))}
                     </tr>
                 ))}
@@ -183,9 +174,10 @@ export function WorkArea() {
             data: [
                 [{ value: toolOptions[0], colspan: 3 }],
                 ['P1', 'P2', 'P3'],
-                ['', '', ''],
-                ['', '', ''],
-                ['', '', ''],
+                ['V1', 'V2', 'V3'],
+                ['V4', 'V5', 'V6'],
+                ['V7', 'V8', 'V9'],
+                ['V10', 'V11', 'V12'],
             ]
         },
         {
@@ -193,9 +185,10 @@ export function WorkArea() {
             data: [
                 [{ value: toolOptions[0], colspan: 2 }],
                 ['P4', 'P5'],
-                ['', ''],
-                ['', ''],
-                ['', ''],
+                ['V13', 'V14'],
+                ['V15', 'V16'],
+                ['V17', 'V18'],
+                ['V19', 'V20'],
             ]
         }
     ]);
@@ -274,19 +267,18 @@ export function WorkArea() {
         );
     };
 
-    const handleAddTable = (tableId) => {
+    const handleAddTable = (tb) => {
+        const data = tb.data.slice(2).map(row => row.map(cell => ''));
         const newTable = {
             id: Date.now(), // Use a unique ID
             data: [
                 [{ value: toolOptions[0], colspan: 1 }],
                 ['PNew'],
-                [''],
-                [''],
-                ['']
+                ...data
             ]
         };
         setTables(prevTables => {
-            const index = prevTables.findIndex(table => table.id === tableId);
+            const index = prevTables.findIndex(table => table.id === tb.id);
             return [...prevTables.slice(0, index + 1), newTable, ...prevTables.slice(index + 1)];
         });
     };
@@ -324,7 +316,7 @@ export function WorkArea() {
                                 }
                                 onAddColumn={(columnIndex) => handleAddColumn(table.id, columnIndex)}
                                 onDeleteColumn={(columnIndex) => handleDeleteColumn(table.id, columnIndex)}
-                                onAddTable={() => handleAddTable(table.id)}
+                                onAddTable={() => handleAddTable(table)}
                                 onDeleteTable={() => handleDeleteTable(table.id)}
                                 isOnlyTable={tables.length === 1}
                                 onContextMenu={handleContextMenu}
