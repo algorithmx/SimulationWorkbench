@@ -1,6 +1,8 @@
 import React from 'react';
 import './App.css';
-import { MenuBar, ProjectDirectory, WorkArea, ColorChart } from './components';
+import { MenuBar } from './components/MenuBar';
+import { WorkArea } from './components/WorkArea';
+import { ColorChart } from './components/ColorChart';
 
 function App() {
   return (
