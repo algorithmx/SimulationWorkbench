@@ -81,11 +81,37 @@ function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDeleteTable,
     );
 }
 
+// Add this new function to calculate the cell groupings
+const calculateCellGroups = (data) => {
+  const groups = [];
+  const valueRows = data.slice(2);
+  const columnCount = data[1].length;
+
+  for (let col = 0; col < columnCount; col++) {
+    let currentGroup = { start: 0, end: 0, value: valueRows[0][col] };
+    
+    for (let row = 0; row < valueRows.length; row++) {
+      if (row === 0 || valueRows[row][col] === currentGroup.value) {
+        currentGroup.end = row;
+      } else {
+        groups.push({ ...currentGroup, col });
+        currentGroup = { start: row, end: row, value: valueRows[row][col] };
+      }
+    }
+    
+    groups.push({ ...currentGroup, col });
+  }
+
+  return groups;
+};
+
 function ToolFlowTable({ data, onCellChange, onAddColumn, onDeleteColumn, onAddTable, onDeleteTable, isOnlyTable, onContextMenu }) {
     const toolFlowRow = data[0];
     const parametersRow = data[1];
     const valueRows = data.slice(2);
     const columnCount = parametersRow.length;
+
+    const cellGroups = calculateCellGroups(data);
 
     const handleHashClick = (columnIndex) => {
         // Empty function for now
@@ -151,21 +177,36 @@ function ToolFlowTable({ data, onCellChange, onAddColumn, onDeleteColumn, onAddT
             <tbody>
                 {valueRows.map((row, rowIndex) => (
                     <tr key={rowIndex}>
-                        {parametersRow.map((_, colIndex) => (
-                            <td key={colIndex}>
-                                <ContextMenuTrigger
-                                    id="cell-context-menu"
-                                    collect={() => ({ rowIndex: rowIndex + 2, colIndex })}
+                        {parametersRow.map((_, colIndex) => {
+                            const group = cellGroups.find(g => g.col === colIndex && g.start <= rowIndex && g.end >= rowIndex);
+                            const isGroupStart = group && group.start === rowIndex;
+                            const isGroupEnd = group && group.end === rowIndex;
+                            const isInGroup = !!group;
+
+                            return (
+                                <td 
+                                    key={colIndex}
+                                    className={`
+                                        ${isGroupStart ? 'group-start' : ''}
+                                        ${isGroupEnd ? 'group-end' : ''}
+                                        ${isInGroup ? 'in-group' : ''}
+                                        ${group && group.start === group.end ? 'single-cell-group' : ''}
+                                    `}
                                 >
-                                    <input
-                                        type="text"
-                                        value={row[colIndex] || ''}
-                                        onChange={(e) => onCellChange(rowIndex + 2, colIndex, e.target.value)}
-                                        className="cell-input"
-                                    />
-                                </ContextMenuTrigger>
-                            </td>
-                        ))}
+                                    <ContextMenuTrigger
+                                        id="cell-context-menu"
+                                        collect={() => ({ rowIndex: rowIndex + 2, colIndex })}
+                                    >
+                                        <input
+                                            type="text"
+                                            value={row[colIndex] || ''}
+                                            onChange={(e) => onCellChange(rowIndex + 2, colIndex, e.target.value)}
+                                            className="cell-input"
+                                        />
+                                    </ContextMenuTrigger>
+                                </td>
+                            );
+                        })}
                     </tr>
                 ))}
             </tbody>

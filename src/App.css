@@ -167,7 +167,6 @@ main {
   height: 50%;
 }
 
-
 .parameter-cell-buttons {
   padding: 0;
   text-align: center;
@@ -365,3 +364,28 @@ main {
 .add-row-btn:hover {
     background-color: #3d8b40;
 }
+
+/* ... existing styles ... */
+
+.tool-flow-table td.in-group {
+  background-color: #f9f9f9;
+}
+
+.tool-flow-table td.group-start {
+  border-top: 2px solid #4CAF50;
+}
+
+.tool-flow-table td.group-end {
+  border-bottom: 2px solid #4CAF50;
+}
+
+.tool-flow-table td.in-group {
+  border-left: 2px solid #4CAF50;
+  border-right: 2px solid #4CAF50;
+}
+
+.tool-flow-table td.single-cell-group {
+  border: 2px solid #4CAF50;
+}
+
+/* ... rest of the existing styles ... */
