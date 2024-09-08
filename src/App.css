@@ -389,3 +389,75 @@ main {
 }
 
 /* ... rest of the existing styles ... */
+
+.pop-up-window {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    max-width: 200px;
+    font-size: 14px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-bottom: 15px;
+    width: 200px; /* Set a fixed width for the popup */
+}
+
+.pop-up-window div {
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.add-value-container {
+    display: flex;
+    justify-content: space-between; /* This will create space between the input and button */
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 100%; /* Ensure the container takes full width of the popup */
+}
+
+.add-value-input {
+    width: 45%; /* Set to 45% of the container width */
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box; /* Ensure padding is included in the width */
+}
+
+.add-value-btn {
+    width: 45%; /* Set to 45% of the container width */
+    padding: 5px;
+    font-size: 14px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    box-sizing: border-box; /* Ensure padding is included in the width */
+}
+
+.add-value-btn:hover {
+    background-color: #45a049;
+}
+
+.close-btn {
+    display: block;
+    width: 100%;
+    padding: 5px 10px;
+    margin-top: 10px;
+    font-size: 14px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    background-color: #e0e0e0;
+}
+
+/* ... rest of the existing styles ... */

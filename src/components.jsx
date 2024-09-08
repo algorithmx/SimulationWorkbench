@@ -110,12 +110,54 @@ function ToolFlowTable({ data, onCellChange, onAddColumn, onDeleteColumn, onAddT
     const parametersRow = data[1];
     const valueRows = data.slice(2);
     const columnCount = parametersRow.length;
-
     const cellGroups = calculateCellGroups(data);
 
-    const handleHashClick = (columnIndex) => {
-        // Empty function for now
-        console.log(`Hash button clicked for column ${columnIndex}`);
+    const handleHashClick = (columnIndex, event) => {
+        const columnValues = valueRows.map(row => row[columnIndex]);
+        const uniqueColumnValues = [...new Set(columnValues)].filter(value => value !== '');
+        
+        // Remove any existing popup
+        const existingPopup = document.querySelector('.pop-up-window');
+        if (existingPopup) {
+            existingPopup.remove();
+        }
+        
+        // Create a pop-up window with the column values
+        const popUpWindow = document.createElement('div');
+        popUpWindow.className = 'pop-up-window';
+        popUpWindow.innerHTML = `
+            <div>${uniqueColumnValues.join('<br>')}</div>
+            <button class="close-btn">Close</button>
+        `;
+        
+        // Position the popUpWindow near the hash button
+        const rect = event.target.getBoundingClientRect();
+        popUpWindow.style.position = 'absolute';
+        popUpWindow.style.left = `${rect.left}px`;
+        popUpWindow.style.top = `${rect.bottom + 5}px`;
+
+        // Add the popUpWindow to the document body
+        document.body.appendChild(popUpWindow);
+        
+        // Add click event to close button
+        const closeButton = popUpWindow.querySelector('.close-btn');
+        closeButton.addEventListener('click', () => {
+            popUpWindow.remove();
+        });
+        
+        // Close the popup when clicking outside
+        const closePopupOnOutsideClick = (e) => {
+            if (!popUpWindow.contains(e.target) && e.target !== event.target) {
+                popUpWindow.remove();
+                document.removeEventListener('click', closePopupOnOutsideClick);
+            }
+        };
+        
+        // Prevent immediate closure and add the event listener
+        event.stopPropagation();
+        setTimeout(() => {
+            document.addEventListener('click', closePopupOnOutsideClick);
+        }, 0);
     };
 
     return (
@@ -157,7 +199,7 @@ function ToolFlowTable({ data, onCellChange, onAddColumn, onDeleteColumn, onAddT
                                         </button>
                                         <button 
                                             className="hash-btn"
-                                            onClick={() => handleHashClick(index)}
+                                            onClick={(e) => handleHashClick(index, e)}
                                         >
                                             #
                                         </button>
