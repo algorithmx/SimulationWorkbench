@@ -342,6 +342,19 @@ export function WorkArea() {
         );
     };
 
+    const handleAddRowAbove = (rowIndex) => {
+        setTables(prevTables =>
+            prevTables.map(table => ({
+                ...table,
+                data: [
+                    ...table.data.slice(0, rowIndex),
+                    new Array(table.data[1].length).fill(''),
+                    ...table.data.slice(rowIndex)
+                ]
+            }))
+        );
+    };
+
     return (
         <section className="work-area">
             <h2>Workspace</h2>
@@ -386,6 +399,9 @@ export function WorkArea() {
                 </MenuItem>
             </ContextMenu>
             <ContextMenu id="index-cell-menu">
+                <MenuItem onClick={(e, data) => handleAddRowAbove(data.rowIndex)}>
+                    Add Row Above
+                </MenuItem>
                 <MenuItem onClick={(e, data) => handleDeleteRow(data.rowIndex)}>
                     Remove Row
                 </MenuItem>
