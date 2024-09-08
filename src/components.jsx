@@ -29,26 +29,41 @@ const handleSelect = (tool, onCellChange, setIsOpen) => {
     setIsOpen(false);
 };
 
-// Toggles the visibility of the tool options popup
-const togglePopup = (e, setIsOpen) => {
-    e.stopPropagation();
-    setIsOpen(prev => !prev);
-};
-
 function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDeleteTable, isOnlyTable }) {
     const [isOpen, setIsOpen] = useState(false);
     const cellRef = useRef(null);
 
     useEffect(() => {
-        // Closes the popup when clicking outside
+        // Function to close the popup
         const closePopup = (e) => {
             if (cellRef.current && !cellRef.current.contains(e.target)) {
                 setIsOpen(false);
             }
         };
+
+        // Function to handle Esc key press
+        const handleEscKey = (e) => {
+            if (e.key === 'Escape') {
+                setIsOpen(false);
+            }
+        };
+
+        // Add event listeners
         document.addEventListener('click', closePopup);
-        return () => document.removeEventListener('click', closePopup);
+        document.addEventListener('keydown', handleEscKey);
+
+        // Cleanup function
+        return () => {
+            document.removeEventListener('click', closePopup);
+            document.removeEventListener('keydown', handleEscKey);
+        };
     }, []);
+
+    // Toggles the visibility of the tool options popup
+    const togglePopup = (e) => {
+        e.stopPropagation();
+        setIsOpen(prev => !prev);
+    };
 
     return (
         <th colSpan={colspan || 1} className="tool-flow-cell" ref={cellRef}>
@@ -60,7 +75,7 @@ function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDeleteTable,
                 >
                     -
                 </button>
-                <div className="tool-selector" onClick={(e) => togglePopup(e, setIsOpen)}>
+                <div className="tool-selector" onClick={togglePopup}>
                     <span>{value || toolOptions[0]}</span>
                     {isOpen && (
                         <ul className="tool-options">
@@ -105,60 +120,12 @@ const calculateCellGroups = (data) => {
   return groups;
 };
 
-function ToolFlowTable({ data, onCellChange, onAddColumn, onDeleteColumn, onAddTable, onDeleteTable, isOnlyTable, onContextMenu }) {
+function ToolFlowTable({ data, onCellChange, onAddColumn, onDeleteColumn, onAddTable, onDeleteTable, isOnlyTable, onContextMenu, handleHashClick }) {
     const toolFlowRow = data[0];
     const parametersRow = data[1];
     const valueRows = data.slice(2);
     const columnCount = parametersRow.length;
     const cellGroups = calculateCellGroups(data);
-
-    const handleHashClick = (columnIndex, event) => {
-        const columnValues = valueRows.map(row => row[columnIndex]);
-        const uniqueColumnValues = [...new Set(columnValues)].filter(value => value !== '');
-        
-        // Remove any existing popup
-        const existingPopup = document.querySelector('.pop-up-window');
-        if (existingPopup) {
-            existingPopup.remove();
-        }
-        
-        // Create a pop-up window with the column values
-        const popUpWindow = document.createElement('div');
-        popUpWindow.className = 'pop-up-window';
-        popUpWindow.innerHTML = `
-            <div>${uniqueColumnValues.join('<br>')}</div>
-            <button class="close-btn">Close</button>
-        `;
-        
-        // Position the popUpWindow near the hash button
-        const rect = event.target.getBoundingClientRect();
-        popUpWindow.style.position = 'absolute';
-        popUpWindow.style.left = `${rect.left}px`;
-        popUpWindow.style.top = `${rect.bottom + 5}px`;
-
-        // Add the popUpWindow to the document body
-        document.body.appendChild(popUpWindow);
-        
-        // Add click event to close button
-        const closeButton = popUpWindow.querySelector('.close-btn');
-        closeButton.addEventListener('click', () => {
-            popUpWindow.remove();
-        });
-        
-        // Close the popup when clicking outside
-        const closePopupOnOutsideClick = (e) => {
-            if (!popUpWindow.contains(e.target) && e.target !== event.target) {
-                popUpWindow.remove();
-                document.removeEventListener('click', closePopupOnOutsideClick);
-            }
-        };
-        
-        // Prevent immediate closure and add the event listener
-        event.stopPropagation();
-        setTimeout(() => {
-            document.addEventListener('click', closePopupOnOutsideClick);
-        }, 0);
-    };
 
     return (
         <table className="tool-flow-table">
@@ -397,6 +364,102 @@ export function WorkArea() {
         );
     };
 
+    const updateTablesWithNewValue = (newValue) => {
+        setTables(prevTables =>
+            prevTables.map(table => ({
+                ...table,
+                data: [...table.data, new Array(table.data[1].length).fill(newValue)]
+            }))
+        );
+    };
+
+    const handleHashClick = (columnIndex, event) => {
+        const columnValues = tables.flatMap(table => table.data.slice(2).map(row => row[columnIndex]));
+        const uniqueColumnValues = [...new Set(columnValues)].filter(value => value !== '');
+        let newlyAddedValues = [];
+        
+        // Remove any existing popup
+        const existingPopup = document.querySelector('.pop-up-window');
+        if (existingPopup) {
+            existingPopup.remove();
+        }
+        
+        // Create a pop-up window with the column values
+        const popUpWindow = document.createElement('div');
+        popUpWindow.className = 'pop-up-window';
+        popUpWindow.innerHTML = `
+            <div class="unique-values-list">${uniqueColumnValues.join('<br>')}</div>
+            <div class="add-value-container">
+                <input type="text" class="add-value-input" placeholder="Add new value">
+                <button class="add-value-btn">Add</button>
+            </div>
+            <button class="close-btn">Close</button>
+        `;
+        
+        // Position the popUpWindow near the hash button
+        const rect = event.target.getBoundingClientRect();
+        popUpWindow.style.position = 'absolute';
+        popUpWindow.style.left = `${rect.left}px`;
+        popUpWindow.style.top = `${rect.bottom + 5}px`;
+
+        // Add the popUpWindow to the document body
+        document.body.appendChild(popUpWindow);
+        
+        // Function to close the popup and update the table
+        const closePopup = () => {
+            popUpWindow.remove();
+            if (newlyAddedValues.length > 0) {
+                // Update the table with new values
+                newlyAddedValues.forEach(value => {
+                    updateTablesWithNewValue(value);
+                });
+            }
+            document.removeEventListener('keydown', handleEscKey);
+            document.removeEventListener('click', closePopupOnOutsideClick);
+        };
+
+        // Add click event to close button
+        const closeButton = popUpWindow.querySelector('.close-btn');
+        closeButton.addEventListener('click', closePopup);
+        
+        // Add click event to add value button
+        const addValueButton = popUpWindow.querySelector('.add-value-btn');
+        const addValueInput = popUpWindow.querySelector('.add-value-input');
+        const uniqueValuesList = popUpWindow.querySelector('.unique-values-list');
+        addValueButton.addEventListener('click', () => {
+            const newValue = addValueInput.value.trim();
+            if (newValue && !uniqueColumnValues.includes(newValue)) {
+                uniqueColumnValues.push(newValue);
+                newlyAddedValues.push(newValue);
+                uniqueValuesList.innerHTML = uniqueColumnValues.join('<br>');
+                addValueInput.value = '';
+            }
+        });
+        
+        // Handle Esc key press
+        const handleEscKey = (e) => {
+            if (e.key === 'Escape') {
+                closePopup();
+            }
+        };
+        
+        // Close the popup when clicking outside
+        const closePopupOnOutsideClick = (e) => {
+            if (!popUpWindow.contains(e.target) && e.target !== event.target) {
+                closePopup();
+            }
+        };
+        
+        // Add event listeners
+        document.addEventListener('keydown', handleEscKey);
+        
+        // Prevent immediate closure and add the click event listener
+        event.stopPropagation();
+        setTimeout(() => {
+            document.addEventListener('click', closePopupOnOutsideClick);
+        }, 0);
+    };
+
     return (
         <section className="work-area">
             <h2>Workspace</h2>
@@ -427,6 +490,7 @@ export function WorkArea() {
                                 onDeleteTable={() => handleDeleteTable(table.id)}
                                 isOnlyTable={tables.length === 1}
                                 onContextMenu={handleContextMenu}
+                                handleHashClick={handleHashClick}
                             />
                         </div>
                     ))}
