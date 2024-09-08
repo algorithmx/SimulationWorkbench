@@ -23,21 +23,24 @@ export function ProjectDirectory() {
 
 const toolOptions = ['Tool A', 'Tool B', 'Tool C', 'Tool D'];
 
+// Handles the selection of a tool from the dropdown
+const handleSelect = (tool, onCellChange, setIsOpen) => {
+    onCellChange(tool);
+    setIsOpen(false);
+};
+
+// Toggles the visibility of the tool options popup
+const togglePopup = (e, setIsOpen) => {
+    e.stopPropagation();
+    setIsOpen(prev => !prev);
+};
+
 function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDeleteTable, isOnlyTable }) {
     const [isOpen, setIsOpen] = useState(false);
     const cellRef = useRef(null);
 
-    const handleSelect = (tool) => {
-        onCellChange(tool);
-        setIsOpen(false);
-    };
-
-    const togglePopup = (e) => {
-        e.stopPropagation();
-        setIsOpen(!isOpen);
-    };
-
     useEffect(() => {
+        // Closes the popup when clicking outside
         const closePopup = (e) => {
             if (cellRef.current && !cellRef.current.contains(e.target)) {
                 setIsOpen(false);
@@ -57,12 +60,15 @@ function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDeleteTable,
                 >
                     -
                 </button>
-                <div className="tool-selector" onClick={togglePopup}>
+                <div className="tool-selector" onClick={(e) => togglePopup(e, setIsOpen)}>
                     <span>{value || toolOptions[0]}</span>
                     {isOpen && (
                         <ul className="tool-options">
                             {toolOptions.map((tool, index) => (
-                                <li key={index} onClick={(e) => { e.stopPropagation(); handleSelect(tool); }}>
+                                <li key={index} onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    handleSelect(tool, onCellChange, setIsOpen); 
+                                }}>
                                     {tool}
                                 </li>
                             ))}
@@ -167,32 +173,58 @@ function ToolFlowTable({ data, onCellChange, onAddColumn, onDeleteColumn, onAddT
     );
 }
 
+// Creates a new table with default values
+const createNewTable = (toolOptions, data) => ({
+    id: Date.now(),
+    data: [
+        [{ value: toolOptions[0], colspan: 1 }],
+        ['PNew'],
+        ...data.slice(2).map(row => row.map(() => ''))
+    ]
+});
+
+// Adds a new column to the table
+const addColumn = (table, columnIndex) => ({
+    ...table,
+    data: table.data.map((row, rowIndex) => {
+        if (rowIndex === 0) {
+            return [{ ...row[0], colspan: row[0].colspan + 1 }];
+        }
+        const newCell = rowIndex === 1 ? 'PNew' : '';
+        return [...row.slice(0, columnIndex + 1), newCell, ...row.slice(columnIndex + 1)];
+    })
+});
+
+// Deletes a column from the table
+const deleteColumn = (table, columnIndex) => {
+    const columnCount = table.data[1].length;
+    if (columnCount === 1) {
+        return table;
+    }
+    return {
+        ...table,
+        data: table.data.map((row, rowIndex) => {
+            if (rowIndex === 0) {
+                return [{ ...row[0], colspan: row[0].colspan - 1 }];
+            }
+            return [...row.slice(0, columnIndex), ...row.slice(columnIndex + 1)];
+        })
+    };
+};
+
 export function WorkArea() {
     const [tables, setTables] = useState([
         {
             id: 1,
             data: [
-                [{ value: toolOptions[0], colspan: 3 }],
-                ['P1', 'P2', 'P3'],
-                ['V1', 'V2', 'V3'],
-                ['V4', 'V5', 'V6'],
-                ['V7', 'V8', 'V9'],
-                ['V10', 'V11', 'V12'],
-            ]
-        },
-        {
-            id: 2,
-            data: [
-                [{ value: toolOptions[0], colspan: 2 }],
-                ['P4', 'P5'],
-                ['V13', 'V14'],
-                ['V15', 'V16'],
-                ['V17', 'V18'],
-                ['V19', 'V20'],
+                [{ value: toolOptions[0], colspan: 1 }],
+                ['P1'],
+                ['']
             ]
         }
     ]);
 
+    // Handles changes to cell values
     const handleCellChange = (tableId, rowIndex, colIndex, value) => {
         setTables(prevTables =>
             prevTables.map(table =>
@@ -215,24 +247,6 @@ export function WorkArea() {
         );
     };
 
-    const addColumn = (table, columnIndex) => {
-        const numRows = table.data.length;
-        const ret = {
-            ...table,
-            data: table.data.map((row, rowIndex) => {
-                if (rowIndex === 0) {
-                    // Increase colspan for the tool row
-                    return [{ ...row[0], colspan: row[0].colspan + 1 }];
-                }
-                // Add a new cell to other rows at the specified index
-                const newCell = rowIndex === 1 ? 'PNew' : '';
-                return [...row.slice(0, columnIndex + 1), newCell, ...row.slice(columnIndex + 1)];
-            })
-        };
-        console.log(ret);
-        return ret;
-    };
-
     const handleAddColumn = (tableId, columnIndex) => {
         setTables(prevTables =>
             prevTables.map(table =>
@@ -243,40 +257,14 @@ export function WorkArea() {
 
     const handleDeleteColumn = (tableId, columnIndex) => {
         setTables(prevTables =>
-            prevTables.map(table => {
-                if (table.id === tableId) {
-                    const columnCount = table.data[1].length;
-                    if (columnCount === 1) {
-                        // Don't delete if it's the last column
-                        return table;
-                    }
-                    return {
-                        ...table,
-                        data: table.data.map((row, rowIndex) => {
-                            if (rowIndex === 0) {
-                                // Decrease colspan for the tool row
-                                return [{ ...row[0], colspan: row[0].colspan - 1 }];
-                            }
-                            // Remove the cell at the specified index
-                            return [...row.slice(0, columnIndex), ...row.slice(columnIndex + 1)];
-                        })
-                    };
-                }
-                return table;
-            })
+            prevTables.map(table =>
+                table.id === tableId ? deleteColumn(table, columnIndex) : table
+            )
         );
     };
 
     const handleAddTable = (tb) => {
-        const data = tb.data.slice(2).map(row => row.map(cell => ''));
-        const newTable = {
-            id: Date.now(), // Use a unique ID
-            data: [
-                [{ value: toolOptions[0], colspan: 1 }],
-                ['PNew'],
-                ...data
-            ]
-        };
+        const newTable = createNewTable(toolOptions, tb.data);
         setTables(prevTables => {
             const index = prevTables.findIndex(table => table.id === tb.id);
             return [...prevTables.slice(0, index + 1), newTable, ...prevTables.slice(index + 1)];
@@ -287,12 +275,30 @@ export function WorkArea() {
         setTables(prevTables => prevTables.filter(table => table.id !== tableId));
     };
 
+    const handleAddRow = () => {
+        setTables(prevTables =>
+            prevTables.map(table => ({
+                ...table,
+                data: [...table.data, new Array(table.data[1].length).fill('')]
+            }))
+        );
+    };
+
     // Calculate the maximum number of rows across all tables
     const maxRows = Math.max(...tables.map(table => table.data.length));
 
     const handleContextMenu = (e, data) => {
         console.log(`Right-click on cell: row ${data.rowIndex}, column ${data.colIndex}`);
         // Add your context menu actions here
+    };
+
+    const handleDeleteRow = (rowIndex) => {
+        setTables(prevTables =>
+            prevTables.map(table => ({
+                ...table,
+                data: table.data.filter((_, index) => index !== rowIndex)
+            }))
+        );
     };
 
     return (
@@ -303,8 +309,13 @@ export function WorkArea() {
                     <div className="index-cell">Tools</div>
                     <div className="index-cell">Params</div>
                     {[...Array(maxRows - 2)].map((_, index) => (
-                        <div key={index} className="index-cell">{index + 1}</div>
+                        <ContextMenuTrigger key={index} id="index-cell-menu" collect={() => ({ rowIndex: index + 2 })}>
+                            <div className="index-cell">{index + 1}</div>
+                        </ContextMenuTrigger>
                     ))}
+                    <div className="index-cell">
+                        <button className="add-row-btn" onClick={handleAddRow}>+</button>
+                    </div>
                 </div>
                 <div className="tables-container">
                     {tables.map(table => (
@@ -331,6 +342,11 @@ export function WorkArea() {
                 </MenuItem>
                 <MenuItem onClick={handleContextMenu}>
                     Context Menu Item 2
+                </MenuItem>
+            </ContextMenu>
+            <ContextMenu id="index-cell-menu">
+                <MenuItem onClick={(e, data) => handleDeleteRow(data.rowIndex)}>
+                    Remove Row
                 </MenuItem>
             </ContextMenu>
         </section>
