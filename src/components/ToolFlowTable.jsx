@@ -19,43 +19,43 @@ export function ToolFlowTable({
     const columnCount = parametersRow.length;
     const cellGroups = calculateCellGroups(data);
 
-    const renderCell = (rowIndex, colIndex) => {
-        const cellValue = data[rowIndex][colIndex];
-        const prevCellValue = rowIndex > 0 ? data[rowIndex - 1][colIndex] : null;
-        const nextCellValue = rowIndex < data.length - 1 ? data[rowIndex + 1][colIndex] : null;
+    // const renderCell = (rowIndex, colIndex) => {
+    //     const cellValue = data[rowIndex][colIndex];
+    //     const prevCellValue = rowIndex > 0 ? data[rowIndex - 1][colIndex] : null;
+    //     const nextCellValue = rowIndex < data.length - 1 ? data[rowIndex + 1][colIndex] : null;
 
-        let cellClass = 'tool-flow-cell';
+    //     let cellClass = 'tool-flow-cell';
 
-        if (cellValue === prevCellValue || cellValue === nextCellValue) {
-            cellClass += ' in-group group-cell';
+    //     if (cellValue === prevCellValue || cellValue === nextCellValue) {
+    //         cellClass += ' in-group group-cell';
             
-            if (cellValue !== prevCellValue) {
-                cellClass += ' group-start';
-            }
+    //         if (cellValue !== prevCellValue) {
+    //             cellClass += ' group-start';
+    //         }
             
-            if (cellValue !== nextCellValue) {
-                cellClass += ' group-end';
-            }
-        }
+    //         if (cellValue !== nextCellValue) {
+    //             cellClass += ' group-end';
+    //         }
+    //     }
 
-        if (cellValue === prevCellValue && cellValue !== nextCellValue) {
-            cellClass += ' group-end';
-        }
+    //     if (cellValue === prevCellValue && cellValue !== nextCellValue) {
+    //         cellClass += ' group-end';
+    //     }
 
-        if (cellValue !== prevCellValue && cellValue === nextCellValue) {
-            cellClass += ' group-start';
-        }
+    //     if (cellValue !== prevCellValue && cellValue === nextCellValue) {
+    //         cellClass += ' group-start';
+    //     }
 
-        if (cellValue !== prevCellValue && cellValue !== nextCellValue) {
-            cellClass += ' single-cell-group';
-        }
+    //     if (cellValue !== prevCellValue && cellValue !== nextCellValue) {
+    //         cellClass += ' single-cell-group';
+    //     }
 
-        return (
-            <td key={`${rowIndex}-${colIndex}`} className={cellClass}>
-                {/* Cell content */}
-            </td>
-        );
-    };
+    //     return (
+    //         <td key={`${rowIndex}-${colIndex}`} className={cellClass}>
+    //             {/* Cell content */}
+    //         </td>
+    //     );
+    // };
 
     return (
         <table className="tool-flow-table">

@@ -1,20 +1,8 @@
-import { useState } from 'react';
 import { createNewTable, addColumn, deleteColumn } from '../utils/tableUtils';
 
 const toolOptions = ['Tool A', 'Tool B', 'Tool C', 'Tool D'];
 
-export function useToolFlowTables() {
-    const [tables, setTables] = useState([
-        {
-            id: 1,
-            data: [
-                [{ value: toolOptions[0], colspan: 1 }],
-                ['P1'],
-                ['']
-            ]
-        }
-    ]);
-
+export function useToolFlowTables({tables, setTables}) {
     const handleCellChange = (tableId, rowIndex, colIndex, value) => {
         setTables(prevTables =>
             prevTables.map(table =>
@@ -214,7 +202,6 @@ export function useToolFlowTables() {
     const maxRows = Math.max(...tables.map(table => table.data.length));
 
     return {
-        tables,
         handleCellChange,
         handleAddColumn,
         handleDeleteColumn,
