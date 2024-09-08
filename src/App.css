@@ -179,56 +179,56 @@ main {
 }
 
 .add-column-btn,
-.add-table-btn {
+.add-table-btn,
+.delete-column-btn,
+.delete-table-btn,
+.hash-btn {
   height: 20px;
   font-size: 15px;
   border: none;
-  background-color: #4CAF50;
   color: white;
+  cursor: pointer;
+}
+
+.add-column-btn,
+.add-table-btn {
+  background-color: #4CAF50;
 }
 
 .delete-column-btn,
 .delete-table-btn {
-  height: 20px;
-  font-size: 15px;
-  border: none;
   background-color: #f44336;
-  color: white;
+}
+
+.hash-btn {
+  background-color: #61b3d0;
+  width: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1px;
+  font-weight: bold;
 }
 
 .add-column-btn:hover,
 .add-table-btn:hover {
-  height: 20px;
-  font-size: 15px;
-  border: none;
   background-color: #45a049;
-  color: white;
 }
 
 .delete-column-btn:hover,
 .delete-table-btn:hover {
-  height: 20px;
-  font-size: 15px;
-  border: none;
   background-color: #d32f2f;
-  color: white;
+}
+
+.hash-btn:hover {
+  background-color: #4a8ba3;
 }
 
 .delete-column-btn:disabled,
 .delete-table-btn:disabled {
-  height: 20px;
-  font-size: 15px;
-  border: none;
   background-color: #cccccc;
   cursor: not-allowed;
-}
-
-.delete-column-btn:disabled:hover,
-.delete-table-btn:disabled:hover {
-  height: 20px;
-  font-size: 15px;
-  border: none;
-  background-color: #cccccc;
 }
 
 .index-column .index-cell:nth-child(1),
@@ -236,10 +236,7 @@ main {
   height: 60px;
 }
 
-.index-column .index-cell:last-child {
-  height: 30px;
-}
-
+.index-column .index-cell:last-child,
 .index-column .react-contextmenu-wrapper {
   height: 30px;
 }
@@ -258,28 +255,6 @@ main {
   height: 100%;
   display: flex;
   align-items: center;
-}
-
-.hash-btn {
-  width: 28px;
-  height: 20px;
-  font-size: 15px;
-  background-color: #61b3d0;
-  border: none;
-  color: white;
-  padding: 0;
-  text-align: center;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  margin: 1px;
-  font-weight: bold;
-}
-
-.hash-btn:hover {
-  background-color: #4a8ba3;
 }
 
 .react-contextmenu {
@@ -338,12 +313,9 @@ main {
   box-sizing: border-box;
 }
 
-.cell-input:focus {
-    outline: 2px solid #4CAF50;
-}
-
+.cell-input:focus,
 .parameter-input:focus {
-    outline: 2px solid #4CAF50;
+  outline: 2px solid #4CAF50;
 }
 
 .react-contextmenu-wrapper {
@@ -379,7 +351,7 @@ main {
   border-bottom: 2px solid #4CAF50;
 }
 
-.tool-flow-table td.in-group {
+.tool-flow-table td.group-cell {
   border-left: 2px solid #4CAF50;
   border-right: 2px solid #4CAF50;
 }
@@ -388,7 +360,16 @@ main {
   border: 2px solid #4CAF50;
 }
 
-/* ... rest of the existing styles ... */
+// Modify these styles to prevent overlapping
+.tool-flow-table td.group-cell:not(.group-start) {
+  border-top: none;
+}
+
+.tool-flow-table td.group-cell:not(.group-end) {
+  border-bottom: none;
+}
+
+// ... rest of the existing styles ...
 
 .pop-up-window {
     position: absolute;

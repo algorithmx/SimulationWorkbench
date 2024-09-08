@@ -19,6 +19,44 @@ export function ToolFlowTable({
     const columnCount = parametersRow.length;
     const cellGroups = calculateCellGroups(data);
 
+    const renderCell = (rowIndex, colIndex) => {
+        const cellValue = data[rowIndex][colIndex];
+        const prevCellValue = rowIndex > 0 ? data[rowIndex - 1][colIndex] : null;
+        const nextCellValue = rowIndex < data.length - 1 ? data[rowIndex + 1][colIndex] : null;
+
+        let cellClass = 'tool-flow-cell';
+
+        if (cellValue === prevCellValue || cellValue === nextCellValue) {
+            cellClass += ' in-group group-cell';
+            
+            if (cellValue !== prevCellValue) {
+                cellClass += ' group-start';
+            }
+            
+            if (cellValue !== nextCellValue) {
+                cellClass += ' group-end';
+            }
+        }
+
+        if (cellValue === prevCellValue && cellValue !== nextCellValue) {
+            cellClass += ' group-end';
+        }
+
+        if (cellValue !== prevCellValue && cellValue === nextCellValue) {
+            cellClass += ' group-start';
+        }
+
+        if (cellValue !== prevCellValue && cellValue !== nextCellValue) {
+            cellClass += ' single-cell-group';
+        }
+
+        return (
+            <td key={`${rowIndex}-${colIndex}`} className={cellClass}>
+                {/* Cell content */}
+            </td>
+        );
+    };
+
     return (
         <table className="tool-flow-table">
             <thead>
@@ -84,15 +122,20 @@ export function ToolFlowTable({
                             const isGroupEnd = group && group.end === rowIndex;
                             const isInGroup = !!group;
 
+                            let cellClass = '';
+                            if (isInGroup) {
+                                cellClass += 'in-group group-cell ';
+                                if (isGroupStart) cellClass += 'group-start ';
+                                if (isGroupEnd) cellClass += 'group-end ';
+                            }
+                            if (group && group.start === group.end) {
+                                cellClass += 'single-cell-group ';
+                            }
+
                             return (
                                 <td 
                                     key={colIndex}
-                                    className={`
-                                        ${isGroupStart ? 'group-start' : ''}
-                                        ${isGroupEnd ? 'group-end' : ''}
-                                        ${isInGroup ? 'in-group' : ''}
-                                        ${group && group.start === group.end ? 'single-cell-group' : ''}
-                                    `}
+                                    className={cellClass.trim()}
                                 >
                                     <ContextMenuTrigger
                                         id="cell-context-menu"
