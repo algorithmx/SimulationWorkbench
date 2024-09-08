@@ -68,8 +68,8 @@ main {
   border-left: none;
   padding: 4px;
   text-align: left;
-  width: 120px; /* Increased from 80px */
-  max-width: 120px; /* Increased from 80px */
+  width: 80px;
+  max-width: 80px; /* Increased from 80px */
   overflow: hidden;
   text-overflow: ellipsis;
   outline: none;
@@ -167,24 +167,13 @@ main {
   height: 50%;
 }
 
-.parameter-cell-line span {
-  flex-grow: 1;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 14px;
-  padding: 0 2px;
-  display: flex;
-  align-items: center;
-}
 
 .parameter-cell-buttons {
   padding: 0;
   text-align: center;
   text-decoration: none;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   border: none;
   width: 100%;
