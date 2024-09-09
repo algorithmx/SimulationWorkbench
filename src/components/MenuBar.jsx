@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 
 export function MenuBar({ toolOptions, onUpdateToolOptions, tables, onUpdateTables }) {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [editableOptions, setEditableOptions] = useState(toolOptions);
     const [newTool, setNewTool] = useState('');
 
@@ -54,8 +54,8 @@ export function MenuBar({ toolOptions, onUpdateToolOptions, tables, onUpdateTabl
         }
     }, [onUpdateToolOptions, onUpdateTables]);
 
-    const handleToggleDropdown = () => {
-        setIsDropdownOpen(!isDropdownOpen);
+    const handleTogglePopup = () => {
+        setIsPopupOpen(!isPopupOpen);
         setEditableOptions(toolOptions);
         setNewTool('');
     };
@@ -77,25 +77,28 @@ export function MenuBar({ toolOptions, onUpdateToolOptions, tables, onUpdateTabl
             updatedOptions.push(newTool.trim());
         }
         onUpdateToolOptions(updatedOptions);
-        setIsDropdownOpen(false);
+        setIsPopupOpen(false);
     };
 
     return (
-        <nav className="menu-bar">
-            <button>Button 1</button>
-            <button onClick={exportStateToJSON}>Export State</button>
-            <button onClick={handleImportClick}>Import State</button>
-            <input
-                type="file"
-                accept=".json"
-                onChange={importStateFromJSON}
-                style={{ display: 'none' }}
-                ref={fileInputRef}
-            />
-            <div className="dropdown">
-                <button onClick={handleToggleDropdown}>Modify Tool Options</button>
-                {isDropdownOpen && (
-                    <div className="dropdown-content">
+        <>
+            <nav className="menu-bar">
+                <button>Button 1</button>
+                <button onClick={exportStateToJSON}>Export State</button>
+                <button onClick={handleImportClick}>Import State</button>
+                <input
+                    type="file"
+                    accept=".json"
+                    onChange={importStateFromJSON}
+                    style={{ display: 'none' }}
+                    ref={fileInputRef}
+                />
+                <button onClick={handleTogglePopup}>Modify Tool Options</button>
+            </nav>
+            {isPopupOpen && (
+                <div className="popup-overlay">
+                    <div className="popup-content">
+                        <h2>Modify Tool Options</h2>
                         {editableOptions.map((option, index) => (
                             <input
                                 key={index}
@@ -110,11 +113,14 @@ export function MenuBar({ toolOptions, onUpdateToolOptions, tables, onUpdateTabl
                             onChange={handleNewToolChange}
                             placeholder="Add new tool"
                         />
-                        <button onClick={handleSaveChanges}>Save Changes</button>
+                        <div className="popup-buttons">
+                            <button onClick={handleSaveChanges}>Save Changes</button>
+                            <button onClick={handleTogglePopup}>Cancel</button>
+                        </div>
                     </div>
-                )}
-            </div>
-        </nav>
+                </div>
+            )}
+        </>
     );
 }
 
