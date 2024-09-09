@@ -3,7 +3,7 @@ import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import { ToolFlowTable } from './ToolFlowTable';
 import { useToolFlowTables } from '../hooks/useToolFlowTables';
 
-export function WorkArea({tables, setTables, toolOptions}) {
+export function WorkArea({tables, toolOptions, toolScripts, setTables}) {
     const {
         handleCellChange,
         handleAddColumn,
@@ -15,7 +15,7 @@ export function WorkArea({tables, setTables, toolOptions}) {
         handleAddRowAbove,
         handleHashClick,
         maxRows,
-    } = useToolFlowTables({tables, setTables, toolOptions});
+    } = useToolFlowTables({tables, setTables, toolOptions, toolScripts});
 
     const handleContextMenu = (e, data) => {
         console.log(`Right-click on cell: row ${data.rowIndex}, column ${data.colIndex}`);

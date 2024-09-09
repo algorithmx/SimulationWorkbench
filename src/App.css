@@ -381,7 +381,7 @@ main {
     max-height: 300px;
     overflow-y: auto;
     padding-bottom: 15px;
-    width: 200px; /* Set a fixed width for the popup */
+    width: 200px; 
 }
 
 .pop-up-window div {
@@ -391,19 +391,19 @@ main {
 
 .add-value-container {
     display: flex;
-    justify-content: space-between; /* This will create space between the input and button */
+    justify-content: space-between;
     margin-top: 10px;
     margin-bottom: 10px;
-    width: 100%; /* Ensure the container takes full width of the popup */
+    width: 100%; 
 }
 
 .add-value-input {
-    width: 45%; /* Set to 45% of the container width */
+    width: 45%;
     padding: 5px;
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 3px;
-    box-sizing: border-box; /* Ensure padding is included in the width */
+    box-sizing: border-box; 
 }
 
 .add-value-btn {
@@ -438,9 +438,6 @@ main {
     background-color: #e0e0e0;
 }
 
-/* ... rest of the existing styles ... */
-
-/* Hash Popup Styles */
 .hash-popup {
   position: absolute;
   background-color: #ffffff;
@@ -489,7 +486,7 @@ main {
 
 .popup-content input {
     display: block;
-    width: 100%;
+    width: 80%;
     margin-bottom: 10px;
     padding: 5px;
 }
@@ -497,6 +494,42 @@ main {
 .popup-buttons {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.tool-option-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    height: 36px; /* Set a fixed height for the row */
+}
+
+.tool-option-row input {
+    flex-grow: 1;
+    height: 100%;
+    margin-top: 10px;
+    margin-right: 10px;
+    padding: 0 10px;
+    box-sizing: border-box;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.tool-option-row button {
+    height: 100%;
+    padding: 0 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.tool-option-row button:hover {
+    background-color: #45a049;
 }

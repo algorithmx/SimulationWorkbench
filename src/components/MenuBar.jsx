@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useRef } from 'react';
 
-export function MenuBar({ toolOptions, onUpdateToolOptions, tables, onUpdateTables }) {
+export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions, onUpdateTables }) {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [editableOptions, setEditableOptions] = useState(toolOptions);
     const [newTool, setNewTool] = useState('');
+    const [selectedTool, setSelectedTool] = useState(null);
 
     // Move the exportStateToJSON function here
     const exportStateToJSON = useCallback(() => {
@@ -80,6 +81,12 @@ export function MenuBar({ toolOptions, onUpdateToolOptions, tables, onUpdateTabl
         setIsPopupOpen(false);
     };
 
+    const handleEditScript = (tool) => {
+        setSelectedTool(tool);
+        // You can add logic here to open a script editor for the selected tool
+        console.log(`Edit script for ${tool}`);
+    };
+
     return (
         <>
             <nav className="menu-bar">
@@ -100,12 +107,14 @@ export function MenuBar({ toolOptions, onUpdateToolOptions, tables, onUpdateTabl
                     <div className="popup-content">
                         <h2>Modify Tool Options</h2>
                         {editableOptions.map((option, index) => (
-                            <input
-                                key={index}
-                                type="text"
-                                value={option}
-                                onChange={(e) => handleOptionChange(index, e.target.value)}
-                            />
+                            <div key={index} className="tool-option-row">
+                                <input
+                                    type="text"
+                                    value={option}
+                                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                                />
+                                <button onClick={() => handleEditScript(option)}>Edit Script</button>
+                            </div>
                         ))}
                         <input
                             type="text"
@@ -120,6 +129,7 @@ export function MenuBar({ toolOptions, onUpdateToolOptions, tables, onUpdateTabl
                     </div>
                 </div>
             )}
+            {/* You can add a new component here for the script editor */}
         </>
     );
 }

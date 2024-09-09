@@ -6,6 +6,12 @@ import { ColorChart } from './components/ColorChart';
 
 function App() {
   const [toolOptions, setToolOptions] = useState(['Tool A', 'Tool B', 'Tool C', 'Tool D']);
+  const [toolScripts, setToolScripts] = useState({
+    'Tool A': '',
+    'Tool B': '',
+    'Tool C': '',
+    'Tool D': ''
+  });
   const [tables, setTables] = useState([
     {
         id: 1,
@@ -29,17 +35,19 @@ function App() {
     <div className="app">
       <header>
         <MenuBar 
-          toolOptions={toolOptions} 
-          onUpdateToolOptions={updateToolOptions}
           tables={tables}
+          toolOptions={toolOptions} 
+          toolScripts={toolScripts}
+          onUpdateToolOptions={updateToolOptions}
           onUpdateTables={updateTables}
         />
       </header>
       <main>
         <WorkArea
           tables={tables}
-          setTables={setTables}
           toolOptions={toolOptions}
+          toolScripts={toolScripts}
+          setTables={setTables}
         />
       </main>
       <footer>
