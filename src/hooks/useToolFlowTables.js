@@ -1,8 +1,7 @@
 import { createNewTable, addColumn, deleteColumn } from '../utils/tableUtils';
 
-const toolOptions = ['Tool A', 'Tool B', 'Tool C', 'Tool D'];
 
-export function useToolFlowTables({tables, setTables}) {
+export function useToolFlowTables({tables, setTables, toolOptions}) {
     const handleCellChange = (tableId, rowIndex, colIndex, value) => {
         setTables(prevTables =>
             prevTables.map(table =>

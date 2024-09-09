@@ -39,6 +39,7 @@ function App() {
         <WorkArea
           tables={tables}
           setTables={setTables}
+          toolOptions={toolOptions}
         />
       </main>
       <footer>

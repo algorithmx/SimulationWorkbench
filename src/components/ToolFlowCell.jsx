@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-const toolOptions = ['Tool A', 'Tool B', 'Tool C', 'Tool D'];
 
-export function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDeleteTable, isOnlyTable }) {
+export function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDeleteTable, isOnlyTable, toolOptions }) {
     const [isOpen, setIsOpen] = useState(false);
     const cellRef = useRef(null);
 
