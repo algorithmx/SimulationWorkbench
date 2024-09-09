@@ -31,6 +31,13 @@ function App() {
     setTables(updatedTables);
   };
 
+  const updateToolScript = (tool, script) => {
+    setToolScripts(prevScripts => ({
+      ...prevScripts,
+      [tool]: script
+    }));
+  };
+
   return (
     <div className="app">
       <header>
@@ -40,6 +47,7 @@ function App() {
           toolScripts={toolScripts}
           onUpdateToolOptions={updateToolOptions}
           onUpdateTables={updateTables}
+          onUpdateToolScript={updateToolScript}
         />
       </header>
       <main>

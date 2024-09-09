@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 
-export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions, onUpdateTables }) {
+export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions, onUpdateTables, onUpdateToolScript }) {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [editableOptions, setEditableOptions] = useState(toolOptions);
     const [newTool, setNewTool] = useState('');
@@ -10,7 +10,8 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
     const exportStateToJSON = useCallback(() => {
         const state = {
             toolOptions,
-            tables
+            tables,
+            toolScripts
         };
         const jsonString = JSON.stringify(state, null, 2);
         
@@ -26,7 +27,7 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-    }, [toolOptions, tables]);
+    }, [toolOptions, tables, toolScripts]);
 
     const fileInputRef = useRef(null);
 
@@ -41,9 +42,12 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
             reader.onload = (e) => {
                 try {
                     const importedState = JSON.parse(e.target.result);
-                    if (importedState.toolOptions && importedState.tables) {
+                    if (importedState.toolOptions && importedState.tables && importedState.toolScripts) {
                         onUpdateToolOptions(importedState.toolOptions);
                         onUpdateTables(importedState.tables);
+                        Object.entries(importedState.toolScripts).forEach(([tool, script]) => {
+                            onUpdateToolScript(tool, script);
+                        });
                     } else {
                         alert('Invalid JSON structure');
                     }
@@ -53,7 +57,7 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
             };
             reader.readAsText(file);
         }
-    }, [onUpdateToolOptions, onUpdateTables]);
+    }, [onUpdateToolOptions, onUpdateTables, onUpdateToolScript]);
 
     const handleTogglePopup = () => {
         setIsPopupOpen(!isPopupOpen);
@@ -83,9 +87,45 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
 
     const handleEditScript = (tool) => {
         setSelectedTool(tool);
-        // You can add logic here to open a script editor for the selected tool
-        console.log(`Edit script for ${tool}`);
+        const script = toolScripts[tool] || '';
+        const editorWindow = window.open('', 'Script Editor', 'width=800,height=600');
+        editorWindow.document.write(`
+            <html>
+                <head>
+                    <title>Edit Script for ${tool}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        textarea { width: 100%; height: 80vh; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Edit Script for ${tool}</h2>
+                    <textarea id="scriptEditor">${script}</textarea>
+                    <br>
+                    <button onclick="saveScript()">Save</button>
+                    <button onclick="window.close()">Cancel</button>
+                    <script>
+                        function saveScript() {
+                            const script = document.getElementById('scriptEditor').value;
+                            window.opener.postMessage({ type: 'SAVE_SCRIPT', tool: '${tool}', script: script }, '*');
+                            window.close();
+                        }
+                    </script>
+                </body>
+            </html>
+        `);
     };
+
+    useEffect(() => {
+        const handleMessage = (event) => {
+            if (event.data.type === 'SAVE_SCRIPT') {
+                onUpdateToolScript(event.data.tool, event.data.script);
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, [onUpdateToolScript]);
 
     return (
         <>
