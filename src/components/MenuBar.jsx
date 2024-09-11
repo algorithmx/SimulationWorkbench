@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { createParameterGrid, ParamInputRow } from '../utils/ParameterGridUtils';
 
 export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions, onUpdateTables, onUpdateToolScript }) {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -140,37 +141,11 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
     };
 
     const handleCreateParamGrid = () => {
-        const validParams = localParamValues.filter(param => param.name.trim() !== '' && param.value.trim() !== '');
-        
-        if (validParams.length === 0) {
-            alert('Please add at least one parameter with both name and value.');
-            return;
+        const newTable = createParameterGrid(localParamValues, toolOptions[0], tables.length + 1);
+        if (newTable) {
+            onUpdateTables([...tables, newTable]);
+            setIsParamGridPopupOpen(false);
         }
-
-        const gridData = [
-            [{ value: toolOptions[0], colspan: validParams.length + 1 }], // Default tool name, +1 for empty column
-            [...validParams.map(param => param.name), ''], // Add empty header for the new column
-            ...generateCombinations(validParams).map(row => [...row, '']), // Add empty cell to each row
-        ];
-
-        const newTable = {
-            id: tables.length + 1,
-            data: gridData
-        };
-
-        onUpdateTables([...tables, newTable]);
-        setIsParamGridPopupOpen(false);
-    };
-
-    const generateCombinations = useCallback((paramValues) => {
-        const values = paramValues.map(param => param.value.split(',').map(s => s.trim()));
-        return cartesianProduct(values);
-    }, []);
-
-    const cartesianProduct = (arrays) => {
-        return arrays.reduce((acc, array) => (
-            acc.flatMap(x => array.map(y => [...x, y]))
-        ), [[]]);
     };
 
     return (
@@ -237,27 +212,6 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
             )}
             {/* You can add a new component here for the script editor */}
         </>
-    );
-}
-
-function ParamInputRow({ param, onChange }) {
-    return (
-        <div className="param-input-row">
-            <input
-                type="text"
-                value={param.name}
-                onChange={(e) => onChange('name', e.target.value)}
-                placeholder="Parameter name"
-                autoComplete="off"
-            />
-            <input
-                type="text"
-                value={param.value}
-                onChange={(e) => onChange('value', e.target.value)}
-                placeholder="Values (comma-separated)"
-                autoComplete="off"
-            />
-        </div>
     );
 }
 

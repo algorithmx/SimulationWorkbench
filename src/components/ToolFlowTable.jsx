@@ -4,6 +4,18 @@ import { ContextMenuTrigger } from "react-contextmenu";
 import { ToolFlowCell } from './ToolFlowCell';
 import { calculateCellGroups } from '../utils/tableUtils';
 
+const getCellColor = (paramName, cellValue) => {
+    if (paramName) return '#f0f0f0'; // Light gray for parameter columns
+    switch (cellValue.toLowerCase()) {
+        case 'not started': return '#b3e5fc'; // light blue
+        case 'success': return '#d4edda'; // light green
+        case 'failure': return '#f8d7da'; // light red
+        case 'pending': return '#ffc107'; // orange
+        case 'running': return '#b39ddb'; // light purple
+        default: return 'white';
+    }
+};
+
 export function ToolFlowTable({ 
     data, 
     onCellChange, 
@@ -80,7 +92,7 @@ export function ToolFlowTable({
             <tbody>
                 {valueRows.map((row, rowIndex) => (
                     <tr key={rowIndex}>
-                        {parametersRow.map((_, colIndex) => {
+                        {parametersRow.map((paramName, colIndex) => {
                             const group = cellGroups.find(g => g.col === colIndex && g.start <= rowIndex && g.end >= rowIndex);
                             const isGroupStart = group && group.start === rowIndex;
                             const isGroupEnd = group && group.end === rowIndex;
@@ -96,10 +108,15 @@ export function ToolFlowTable({
                                 cellClass += 'single-cell-group ';
                             }
 
+                            const cellValue = row[colIndex] || '';
+                            const backgroundColor = getCellColor(paramName, cellValue);
+                            const isParameterCell = !!paramName;
+
                             return (
                                 <td 
                                     key={colIndex}
                                     className={cellClass.trim()}
+                                    style={{ backgroundColor }}
                                 >
                                     <ContextMenuTrigger
                                         id="cell-context-menu"
@@ -107,9 +124,11 @@ export function ToolFlowTable({
                                     >
                                         <input
                                             type="text"
-                                            value={row[colIndex] || ''}
+                                            value={cellValue}
                                             onChange={(e) => onCellChange(rowIndex + 2, colIndex, e.target.value)}
                                             className="cell-input"
+                                            style={{ backgroundColor: 'transparent' }}
+                                            disabled={!isParameterCell}
                                         />
                                     </ContextMenuTrigger>
                                 </td>

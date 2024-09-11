@@ -22,6 +22,11 @@ export function WorkArea({tables, toolOptions, toolScripts, setTables}) {
         // Add your context menu actions here
     };
 
+    const handleToolFlowCellAction = (e, data) => {
+        console.log(`Tool flow cell action on table ${data.tableId}`);
+        // Add your tool flow cell context menu actions here
+    };
+
     return (
         <section className="work-area">
             <h2>Workspace</h2>
@@ -54,6 +59,7 @@ export function WorkArea({tables, toolOptions, toolScripts, setTables}) {
                                 onContextMenu={handleContextMenu}
                                 handleHashClick={handleHashClick}
                                 toolOptions={toolOptions}
+                                tableId={table.id}
                             />
                         </div>
                     ))}
@@ -73,6 +79,14 @@ export function WorkArea({tables, toolOptions, toolScripts, setTables}) {
                 </MenuItem>
                 <MenuItem onClick={(e, data) => handleDeleteRow(data.rowIndex)}>
                     Remove Row
+                </MenuItem>
+            </ContextMenu>
+            <ContextMenu id="tool-flow-cell-menu">
+                <MenuItem onClick={handleToolFlowCellAction}>
+                    Reserved Item 1
+                </MenuItem>
+                <MenuItem onClick={handleToolFlowCellAction}>
+                    Reserved Item 2
                 </MenuItem>
             </ContextMenu>
         </section>
