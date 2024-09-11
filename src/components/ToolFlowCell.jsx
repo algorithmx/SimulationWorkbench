@@ -74,15 +74,15 @@ export function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDelet
                         -
                     </button>
                     <div className="tool-selector" onClick={togglePopup}>
-                        <span>{value || toolOptions[0]}</span>
+                        <span>{value || Object.keys(toolOptions)[0]}</span>
                         {isOpen && (
                             <ul className="tool-options">
-                                {toolOptions.map((tool, index) => (
+                                {Object.entries(toolOptions).map(([toolName, description], index) => (
                                     <li key={index} onClick={(e) => { 
                                         e.stopPropagation(); 
-                                        handleSelect(tool); 
+                                        handleSelect(toolName); 
                                     }}>
-                                        {tool}
+                                        {toolName}: {description}
                                     </li>
                                 ))}
                             </ul>
@@ -102,6 +102,6 @@ ToolFlowCell.propTypes = {
     onAddTable: PropTypes.func.isRequired,
     onDeleteTable: PropTypes.func.isRequired,
     isOnlyTable: PropTypes.bool.isRequired,
-    toolOptions: PropTypes.array.isRequired,
+    toolOptions: PropTypes.objectOf(PropTypes.string).isRequired,
     tableId: PropTypes.number.isRequired,
 };

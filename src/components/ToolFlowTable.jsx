@@ -46,7 +46,8 @@ export function ToolFlowTable({
     isOnlyTable, 
     onContextMenu, 
     handleHashClick,
-    toolOptions
+    toolOptions,
+    tableId
 }) {
     const [toolFlowRow, parametersRow, ...valueRows] = data;
     const columnCount = parametersRow.length;
@@ -66,6 +67,7 @@ export function ToolFlowTable({
                             onDeleteTable={onDeleteTable}
                             isOnlyTable={isOnlyTable}
                             toolOptions={toolOptions}
+                            tableId={tableId}
                         />
                     ))}
                 </tr>
@@ -172,4 +174,5 @@ ToolFlowTable.propTypes = {
     onContextMenu: PropTypes.func.isRequired,
     handleHashClick: PropTypes.func.isRequired,
     toolOptions: PropTypes.arrayOf(PropTypes.string).isRequired,
+    tableId: PropTypes.number.isRequired,
 };

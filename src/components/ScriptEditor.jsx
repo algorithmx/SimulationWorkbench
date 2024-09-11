@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export function ScriptEditor({ tool, script, language, onSave }) {
+export function ScriptEditor({ tool, script, language, onSave, onClose }) {
     const editorRef = useRef(null);
 
     useEffect(() => {
@@ -84,5 +84,12 @@ export function ScriptEditor({ tool, script, language, onSave }) {
         };
     }, [tool, script, language, onSave]);
 
-    return null; // This component doesn't render anything in the main window
+    return (
+        <div className="script-editor-overlay">
+            <div className="script-editor-content">
+                {/* ... existing content ... */}
+                <button onClick={onClose}>Close</button>
+            </div>
+        </div>
+    );
 }

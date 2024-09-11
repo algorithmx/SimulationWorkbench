@@ -26,7 +26,12 @@ import { SystemMessageArea } from './components/ColorChart';
 import useSystemMessage from './hooks/useSystemMessage';
 
 function App() {
-  const [toolOptions, setToolOptions] = useState(['Tool A', 'Tool B', 'Tool C', 'Tool D']);
+  const [toolOptions, setToolOptions] = useState({
+    'Tool A': 'Description for Tool A',
+    'Tool B': 'Description for Tool B',
+    'Tool C': 'Description for Tool C',
+    'Tool D': 'Description for Tool D'
+  });
   const [toolScripts, setToolScripts] = useState({
     'Tool A': { language: 'python', script: '' },
     'Tool B': { language: 'python', script: '' },

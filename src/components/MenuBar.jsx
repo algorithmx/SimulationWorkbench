@@ -83,22 +83,30 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
         setNewTool('');
     };
 
-    const handleOptionChange = (index, value) => {
-        const updatedOptions = [...editableOptions];
-        updatedOptions[index] = value;
-        setEditableOptions(updatedOptions);
-    };
-
-    const handleNewToolChange = (e) => {
-        setNewTool(e.target.value);
+    const handleOptionChange = (toolName, field, value) => {
+        setEditableOptions(prevOptions => ({
+            ...prevOptions,
+            [toolName]: field === 'name' 
+                ? { ...prevOptions[toolName], [value]: prevOptions[toolName] }
+                : (typeof value === 'string' ? value : JSON.stringify(value))
+        }));
     };
 
     const handleSaveChanges = () => {
-        const filteredOptions = editableOptions.filter(option => option.trim() !== '');
-        const updatedOptions = [...filteredOptions];
-        if (newTool.trim() !== '') {
-            updatedOptions.push(newTool.trim());
+        const updatedOptions = Object.entries(editableOptions)
+            .filter(([toolName, description]) => 
+                toolName.trim() !== '' && 
+                (typeof description === 'string' ? description.trim() !== '' : true)
+            )
+            .reduce((acc, [toolName, description]) => {
+                acc[toolName] = description;
+                return acc;
+            }, {});
+
+        if (newTool.name && newTool.name.trim() !== '' && newTool.description && newTool.description.trim() !== '') {
+            updatedOptions[newTool.name.trim()] = newTool.description.trim();
         }
+
         onUpdateToolOptions(updatedOptions);
         setIsPopupOpen(false);
     };
@@ -162,21 +170,32 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
                 <div className="popup-overlay">
                     <div className="popup-content">
                         <h2>Modify Tool Options</h2>
-                        {editableOptions.map((option, index) => (
-                            <div key={index} className="tool-option-row">
+                        {Object.entries(editableOptions).map(([toolName, description]) => (
+                            <div key={toolName} className="tool-option-row">
                                 <input
                                     type="text"
-                                    value={option}
-                                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                                    value={toolName}
+                                    onChange={(e) => handleOptionChange(toolName, 'name', e.target.value)}
                                 />
-                                <button onClick={() => handleEditScript(option)}>Edit Script</button>
+                                <input
+                                    type="text"
+                                    value={description}
+                                    onChange={(e) => handleOptionChange(toolName, 'description', e.target.value)}
+                                />
+                                <button onClick={() => handleEditScript(toolName)}>Edit Script</button>
                             </div>
                         ))}
                         <input
                             type="text"
-                            value={newTool}
-                            onChange={handleNewToolChange}
-                            placeholder="Add new tool"
+                            value={newTool.name}
+                            onChange={(e) => setNewTool({ ...newTool, name: e.target.value })}
+                            placeholder="Add new tool name"
+                        />
+                        <input
+                            type="text"
+                            value={newTool.description}
+                            onChange={(e) => setNewTool({ ...newTool, description: e.target.value })}
+                            placeholder="Add new tool description"
                         />
                         <div className="popup-buttons">
                             <button onClick={handleSaveChanges}>Save Changes</button>
