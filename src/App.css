@@ -1025,3 +1025,27 @@ main {
 .popup-content button:hover {
   background-color: #45a049;
 }
+
+.index-cell {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.row-execution-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 5px;
+  line-height: 1;
+}
+
+.row-execution-btn.play {
+  color: #4CAF50;
+}
+
+.row-execution-btn.stop {
+  color: #f44336;
+  font-size: 22px; 
+}

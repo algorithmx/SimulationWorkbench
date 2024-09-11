@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import { ToolFlowTable } from './ToolFlowTable';
 import { useToolFlowTables } from '../hooks/useToolFlowTables';
@@ -16,6 +16,27 @@ export function WorkArea({tables, toolOptions, toolScripts, setTables}) {
         handleHashClick,
         maxRows,
     } = useToolFlowTables({tables, setTables, toolOptions, toolScripts});
+
+    const [runningRows, setRunningRows] = useState({});
+
+    const toggleRowExecution = (rowIndex) => {
+        setRunningRows(prev => ({
+            ...prev,
+            [rowIndex]: !prev[rowIndex]
+        }));
+    };
+
+    const runRow = (rowIndex) => {
+        console.log(`Running row ${rowIndex}`);
+        toggleRowExecution(rowIndex);
+        // Implement row execution logic here
+    };
+
+    const stopRow = (rowIndex) => {
+        console.log(`Stopping row ${rowIndex}`);
+        toggleRowExecution(rowIndex);
+        // Implement row stopping logic here
+    };
 
     const handleContextMenu = (e, data) => {
         console.log(`Right-click on cell: row ${data.rowIndex}, column ${data.colIndex}`);
@@ -36,7 +57,15 @@ export function WorkArea({tables, toolOptions, toolScripts, setTables}) {
                     <div className="index-cell">Params</div>
                     {[...Array(maxRows - 2)].map((_, index) => (
                         <ContextMenuTrigger key={index} id="index-cell-menu" collect={() => ({ rowIndex: index + 2 })}>
-                            <div className="index-cell">{index + 1}</div>
+                            <div className="index-cell">
+                                <span>{index + 1}</span>
+                                <button 
+                                    className={`row-execution-btn ${runningRows[index + 2] ? 'stop' : 'play'}`}
+                                    onClick={() => runningRows[index + 2] ? stopRow(index + 2) : runRow(index + 2)}
+                                >
+                                    {runningRows[index + 2] ? '⏹' : '▶'}
+                                </button>
+                            </div>
                         </ContextMenuTrigger>
                     ))}
                     <div className="index-cell">
