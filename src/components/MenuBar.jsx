@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createParameterGrid, ParamInputRow } from '../utils/ParameterGridUtils';
 
-export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions, onUpdateTables, onUpdateToolScript, workspaceTitle, onUpdateWorkspaceTitle }) {
+export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions, onUpdateTables, onUpdateToolScript, workspaceTitle, onUpdateWorkspaceTitle, onUpdateSystemMessage }) {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [editableOptions, setEditableOptions] = useState(toolOptions);
     const [newTool, setNewTool] = useState('');
@@ -43,6 +43,7 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
                             onUpdateToolScript(tool, script);
                         });
                         onUpdateWorkspaceTitle(importedState.workspaceTitle);
+                        onUpdateSystemMessage(`Workspace "${importedState.workspaceTitle}" loaded successfully from file "${file.name}"!`);
                     } else {
                         alert('Invalid JSON structure');
                     }
@@ -52,7 +53,7 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
             };
             reader.readAsText(file);
         }
-    }, [onUpdateToolOptions, onUpdateTables, onUpdateToolScript, onUpdateWorkspaceTitle]);
+    }, [onUpdateToolOptions, onUpdateTables, onUpdateToolScript, onUpdateWorkspaceTitle, onUpdateSystemMessage]);
 
     const handleTogglePopup = () => {
         setIsPopupOpen(!isPopupOpen);

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import './App.css';
 import { MenuBar } from './components/MenuBar';
 import { WorkArea } from './components/WorkArea';
-import { ColorChart } from './components/ColorChart';
+import { SystemMessageArea } from './components/ColorChart';
+import useSystemMessage from './hooks/useSystemMessage';
 
 function App() {
   const [toolOptions, setToolOptions] = useState(['Tool A', 'Tool B', 'Tool C', 'Tool D']);
@@ -23,6 +24,7 @@ function App() {
     }
   ]);
   const [workspaceTitle, setWorkspaceTitle] = useState("Workspace");
+  const { systemMessages, updateSystemMessage } = useSystemMessage('Welcome to the workspace');
 
   const updateToolOptions = (updatedOptions) => {
     setToolOptions(updatedOptions);
@@ -55,6 +57,7 @@ function App() {
           onUpdateTables={updateTables}
           onUpdateToolScript={updateToolScript}
           onUpdateWorkspaceTitle={updateWorkspaceTitle}
+          onUpdateSystemMessage={updateSystemMessage}
         />
       </header>
       <main>
@@ -65,10 +68,14 @@ function App() {
           setTables={setTables}
           workspaceTitle={workspaceTitle}
           setWorkspaceTitle={setWorkspaceTitle}
+          onUpdateSystemMessage={updateSystemMessage}
         />
       </main>
       <footer>
-        <ColorChart />
+        <div className="footer-content">
+          <SystemMessageArea messages={systemMessages} />
+          <div className="unused-area"></div>
+        </div>
       </footer>
     </div>
   );
