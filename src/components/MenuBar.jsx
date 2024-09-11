@@ -4,23 +4,13 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [editableOptions, setEditableOptions] = useState(toolOptions);
     const [newTool, setNewTool] = useState('');
-    // Remove the following line:
-    // const [selectedTool, setSelectedTool] = useState(null);
-
-    // Move the exportStateToJSON function here
     const exportStateToJSON = useCallback(() => {
-        const state = {
-            toolOptions,
-            tables,
-            toolScripts
-        };
+        const state = { toolOptions, tables, toolScripts };
         const jsonString = JSON.stringify(state, null, 2);
         
-        // Create a Blob with the JSON data
         const blob = new Blob([jsonString], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         
-        // Create a link and trigger the download
         const a = document.createElement('a');
         a.href = url;
         a.download = 'app-state.json';
@@ -86,37 +76,37 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
         setIsPopupOpen(false);
     };
 
-    const handleEditScript = (tool) => {
-        // Remove the following line:
-        // setSelectedTool(tool);
+    const handleEditScript = useCallback((tool) => {
         const script = toolScripts[tool] || '';
         const editorWindow = window.open('', 'Script Editor', 'width=800,height=600');
-        editorWindow.document.write(`
-            <html>
-                <head>
-                    <title>Edit Script for ${tool}</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; }
-                        textarea { width: 100%; height: 80vh; }
-                    </style>
-                </head>
-                <body>
-                    <h2>Edit Script for ${tool}</h2>
-                    <textarea id="scriptEditor">${script}</textarea>
-                    <br>
-                    <button onclick="saveScript()">Save</button>
-                    <button onclick="window.close()">Cancel</button>
-                    <script>
-                        function saveScript() {
-                            const script = document.getElementById('scriptEditor').value;
-                            window.opener.postMessage({ type: 'SAVE_SCRIPT', tool: '${tool}', script: script }, '*');
-                            window.close();
-                        }
-                    </script>
-                </body>
-            </html>
-        `);
-    };
+        if (editorWindow) {
+            editorWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Edit Script for ${tool}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; }
+                            textarea { width: 100%; height: 80vh; }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>Edit Script for ${tool}</h2>
+                        <textarea id="scriptEditor">${script}</textarea>
+                        <br>
+                        <button onclick="saveScript()">Save</button>
+                        <button onclick="window.close()">Cancel</button>
+                        <script>
+                            function saveScript() {
+                                const script = document.getElementById('scriptEditor').value;
+                                window.opener.postMessage({ type: 'SAVE_SCRIPT', tool: '${tool}', script: script }, '*');
+                                window.close();
+                            }
+                        </script>
+                    </body>
+                </html>
+            `);
+        }
+    }, [toolScripts]);
 
     useEffect(() => {
         const handleMessage = (event) => {
@@ -158,9 +148,9 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
         }
 
         const gridData = [
-            [{ value: toolOptions[0], colspan: validParams.length }], // Default tool name
-            validParams.map(param => param.name),
-            ...generateCombinations(validParams)
+            [{ value: toolOptions[0], colspan: validParams.length + 1 }], // Default tool name, +1 for empty column
+            [...validParams.map(param => param.name), ''], // Add empty header for the new column
+            ...generateCombinations(validParams).map(row => [...row, '']), // Add empty cell to each row
         ];
 
         const newTable = {
@@ -172,10 +162,10 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
         setIsParamGridPopupOpen(false);
     };
 
-    const generateCombinations = (paramValues) => {
+    const generateCombinations = useCallback((paramValues) => {
         const values = paramValues.map(param => param.value.split(',').map(s => s.trim()));
         return cartesianProduct(values);
-    };
+    }, []);
 
     const cartesianProduct = (arrays) => {
         return arrays.reduce((acc, array) => (
