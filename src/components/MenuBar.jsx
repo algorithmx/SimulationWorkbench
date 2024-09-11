@@ -81,6 +81,7 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
         setIsPopupOpen(!isPopupOpen);
         setEditableOptions(toolOptions);
         setNewTool('');
+        setCurrentEditingTool(null); // Add this line to close the "Edit Script" popup when toggling the main popup
     };
 
     const handleOptionChange = (toolName, field, value) => {
@@ -109,6 +110,7 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
 
         onUpdateToolOptions(updatedOptions);
         setIsPopupOpen(false);
+        setCurrentEditingTool(null); // Add this line to close the "Edit Script" popup
     };
 
     const [currentEditingTool, setCurrentEditingTool] = useState(null);
