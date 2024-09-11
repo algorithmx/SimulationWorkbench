@@ -22,6 +22,7 @@ function App() {
         ]
     }
   ]);
+  const [workspaceTitle, setWorkspaceTitle] = useState("Workspace");
 
   const updateToolOptions = (updatedOptions) => {
     setToolOptions(updatedOptions);
@@ -38,6 +39,10 @@ function App() {
     }));
   };
 
+  const updateWorkspaceTitle = (title) => {
+    setWorkspaceTitle(title);
+  };
+
   return (
     <div className="app">
       <header>
@@ -45,9 +50,11 @@ function App() {
           tables={tables}
           toolOptions={toolOptions} 
           toolScripts={toolScripts}
+          workspaceTitle={workspaceTitle}
           onUpdateToolOptions={updateToolOptions}
           onUpdateTables={updateTables}
           onUpdateToolScript={updateToolScript}
+          onUpdateWorkspaceTitle={updateWorkspaceTitle}
         />
       </header>
       <main>
@@ -56,6 +63,8 @@ function App() {
           toolOptions={toolOptions}
           toolScripts={toolScripts}
           setTables={setTables}
+          workspaceTitle={workspaceTitle}
+          setWorkspaceTitle={setWorkspaceTitle}
         />
       </main>
       <footer>

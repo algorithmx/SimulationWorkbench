@@ -3,7 +3,7 @@ import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import { ToolFlowTable } from './ToolFlowTable';
 import { useToolFlowTables } from '../hooks/useToolFlowTables';
 
-export function WorkArea({tables, toolOptions, toolScripts, setTables}) {
+export function WorkArea({tables, toolOptions, toolScripts, setTables, workspaceTitle, setWorkspaceTitle}) {
     const {
         handleCellChange,
         handleAddColumn,
@@ -50,7 +50,12 @@ export function WorkArea({tables, toolOptions, toolScripts, setTables}) {
 
     return (
         <section className="work-area">
-            <h2>Workspace</h2>
+            <input 
+                type="text"
+                className="workspace-title-input"
+                value={workspaceTitle}
+                onChange={(e) => setWorkspaceTitle(e.target.value)}
+            />
             <div className="tool-flow-wrapper">
                 <div className="index-column">
                     <div className="index-cell">Tools</div>

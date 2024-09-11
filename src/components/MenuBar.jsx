@@ -1,12 +1,12 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createParameterGrid, ParamInputRow } from '../utils/ParameterGridUtils';
 
-export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions, onUpdateTables, onUpdateToolScript }) {
+export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions, onUpdateTables, onUpdateToolScript, workspaceTitle, onUpdateWorkspaceTitle }) {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [editableOptions, setEditableOptions] = useState(toolOptions);
     const [newTool, setNewTool] = useState('');
     const exportStateToJSON = useCallback(() => {
-        const state = { toolOptions, tables, toolScripts };
+        const state = { toolOptions, tables, toolScripts, workspaceTitle };
         const jsonString = JSON.stringify(state, null, 2);
         
         const blob = new Blob([jsonString], { type: 'application/json' });
@@ -14,12 +14,14 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
         
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'app-state.json';
+        // Use workspaceTitle for the filename, fallback to 'workspace' if empty
+        const filename = (workspaceTitle.trim() || 'workspace').replace(/\s+/g, '_').toLowerCase();
+        a.download = `${filename}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-    }, [toolOptions, tables, toolScripts]);
+    }, [toolOptions, tables, toolScripts, workspaceTitle]);
 
     const fileInputRef = useRef(null);
 
@@ -34,12 +36,13 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
             reader.onload = (e) => {
                 try {
                     const importedState = JSON.parse(e.target.result);
-                    if (importedState.toolOptions && importedState.tables && importedState.toolScripts) {
+                    if (importedState.toolOptions && importedState.tables && importedState.toolScripts && importedState.workspaceTitle) {
                         onUpdateToolOptions(importedState.toolOptions);
                         onUpdateTables(importedState.tables);
                         Object.entries(importedState.toolScripts).forEach(([tool, script]) => {
                             onUpdateToolScript(tool, script);
                         });
+                        onUpdateWorkspaceTitle(importedState.workspaceTitle);
                     } else {
                         alert('Invalid JSON structure');
                     }
@@ -49,7 +52,7 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
             };
             reader.readAsText(file);
         }
-    }, [onUpdateToolOptions, onUpdateTables, onUpdateToolScript]);
+    }, [onUpdateToolOptions, onUpdateTables, onUpdateToolScript, onUpdateWorkspaceTitle]);
 
     const handleTogglePopup = () => {
         setIsPopupOpen(!isPopupOpen);
