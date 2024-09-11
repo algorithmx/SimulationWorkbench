@@ -69,7 +69,7 @@ main {
   padding: 4px;
   text-align: left;
   width: 80px;
-  max-width: 80px; /* Increased from 80px */
+  max-width: 80px;
   overflow: hidden;
   text-overflow: ellipsis;
   outline: none;
@@ -319,9 +319,9 @@ main {
 }
 
 .react-contextmenu-wrapper {
-    width: 100%;
-    height: 100%;
-    display: flex;
+  width: 100%;
+  height: 100%;
+  display: flex;
 }
 
 .add-row-btn {
@@ -334,10 +334,8 @@ main {
 }
 
 .add-row-btn:hover {
-    background-color: #3d8b40;
+  background-color: #3d8b40;
 }
-
-/* ... existing styles ... */
 
 .tool-flow-table td.in-group {
   background-color: #f9f9f9;
@@ -369,73 +367,73 @@ main {
 }
 
 .pop-up-window {
-    position: absolute;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    z-index: 1000;
-    max-width: 200px;
-    font-size: 14px;
-    max-height: 300px;
-    overflow-y: auto;
-    padding-bottom: 15px;
-    width: 200px; 
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000;
+  max-width: 200px;
+  font-size: 14px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-bottom: 15px;
+  width: 200px; 
 }
 
 .pop-up-window div {
-    margin-bottom: 10px;
-    line-height: 1.4;
+  margin-bottom: 10px;
+  line-height: 1.4;
 }
 
 .add-value-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    width: 100%; 
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 100%; 
 }
 
 .add-value-input {
-    width: 45%;
-    padding: 5px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    box-sizing: border-box; 
+  width: 45%;
+  padding: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-sizing: border-box; 
 }
 
 .add-value-btn {
-    width: 45%; /* Set to 45% of the container width */
-    padding: 5px;
-    font-size: 14px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    box-sizing: border-box; /* Ensure padding is included in the width */
+  width: 45%;
+  padding: 5px;
+  font-size: 14px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  box-sizing: border-box;
 }
 
 .add-value-btn:hover {
-    background-color: #45a049;
+  background-color: #45a049;
 }
 
 .close-btn {
-    display: block;
-    width: 100%;
-    padding: 5px 10px;
-    margin-top: 10px;
-    font-size: 14px;
-    background-color: #f0f0f0;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
+  display: block;
+  width: 100%;
+  padding: 5px 10px;
+  margin-top: 10px;
+  font-size: 14px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
 }
 
 .close-btn:hover {
-    background-color: #e0e0e0;
+  background-color: #e0e0e0;
 }
 
 .hash-popup {
@@ -459,77 +457,571 @@ main {
 }
 
 .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .popup-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    width: 100%;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
 }
 
 .popup-content h2 {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 .popup-content input {
-    display: block;
-    width: 80%;
-    margin-bottom: 10px;
-    padding: 5px;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 5px;
+  box-sizing: border-box;
 }
 
 .popup-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 5px;
-    margin-top: 5px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 15px;
 }
 
 .tool-option-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    height: 36px; /* Set a fixed height for the row */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  height: 36px;
 }
 
 .tool-option-row input {
-    flex-grow: 1;
-    height: 100%;
-    margin-top: 10px;
-    margin-right: 10px;
-    padding: 0 10px;
-    box-sizing: border-box;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  flex-grow: 1;
+  height: 100%;
+  margin-top: 10px;
+  margin-right: 10px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .tool-option-row button {
-    height: 100%;
-    padding: 0 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
-    white-space: nowrap;
+  height: 100%;
+  padding: 0 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .tool-option-row button:hover {
-    background-color: #45a049;
+  background-color: #45a049;
+}
+
+.param-input-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.param-input-row input {
+  width: 48%;
+  padding: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.popup-content button {
+  padding: 5px 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.popup-content button:hover {
+  background-color: #45a049;
+}
+
+.menu-bar {
+  display: flex;
+  gap: 10px;
+}
+
+.menu-bar button {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.menu-bar button:hover {
+  background-color: #45a049;
+}
+
+.tool-flow-cell {
+  cursor: pointer;
+  position: relative;
+}
+
+.tool-selector {
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  margin: 0;
+  font-size: 14px;
+  padding: 0 2px;
+}
+
+.tool-options {
+  position: fixed;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  z-index: 9999;
+  min-width: 120px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tool-options li {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.tool-options li:hover {
+  background-color: #f0f0f0;
+}
+
+.parameter-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 2px 0;
+}
+
+.parameter-cell-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 50%;
+}
+
+.parameter-cell-buttons {
+  padding: 0;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: none;
+  width: 100%;
+}
+
+.add-column-btn,
+.add-table-btn,
+.delete-column-btn,
+.delete-table-btn,
+.hash-btn {
+  height: 20px;
+  font-size: 15px;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.add-column-btn,
+.add-table-btn {
+  background-color: #4CAF50;
+}
+
+.delete-column-btn,
+.delete-table-btn {
+  background-color: #f44336;
+}
+
+.hash-btn {
+  background-color: #61b3d0;
+  width: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1px;
+  font-weight: bold;
+}
+
+.add-column-btn:hover,
+.add-table-btn:hover {
+  background-color: #45a049;
+}
+
+.delete-column-btn:hover,
+.delete-table-btn:hover {
+  background-color: #d32f2f;
+}
+
+.hash-btn:hover {
+  background-color: #4a8ba3;
+}
+
+.delete-column-btn:disabled,
+.delete-table-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.index-column .index-cell:nth-child(1),
+.index-column .index-cell:nth-child(2) {
+  height: 60px;
+}
+
+.index-column .index-cell:last-child,
+.index-column .react-contextmenu-wrapper {
+  height: 30px;
+}
+
+.tool-flow-header {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.tool-flow-header,
+.parameter-cell {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.react-contextmenu {
+  background-color: #ffffff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: .25rem;
+  color: #373a3c;
+  font-size: 14px;
+  margin: 2px 0 0;
+  min-width: 160px;
+  outline: none;
+  opacity: 0;
+  padding: 5px 0;
+  pointer-events: none;
+  text-align: left;
+  transition: opacity 250ms ease !important;
+}
+
+.react-contextmenu.react-contextmenu--visible {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 9999;
+}
+
+.react-contextmenu-item {
+  background: 0 0;
+  border: 0;
+  color: #373a3c;
+  cursor: pointer;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 3px 20px;
+  text-align: inherit;
+  white-space: nowrap;
+}
+
+.react-contextmenu-item:hover {
+  background-color: #f5f5f5;
+  border-color: #f5f5f5;
+  color: #373a3c;
+  text-decoration: none;
+}
+
+.cell-input,
+.parameter-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.cell-input:focus,
+.parameter-input:focus {
+  outline: 2px solid #4CAF50;
+}
+
+.react-contextmenu-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.add-row-btn {
+  width: 100%;
+  height: 100%;
+  font-size: 15px;
+  border: none;
+  background-color: #45a049;
+  color: white;
+}
+
+.add-row-btn:hover {
+  background-color: #3d8b40;
+}
+
+.tool-flow-table td.in-group {
+  background-color: #f9f9f9;
+}
+
+.tool-flow-table td.group-start {
+  border-top: 2px solid #4CAF50;
+}
+
+.tool-flow-table td.group-end {
+  border-bottom: 2px solid #4CAF50;
+}
+
+.tool-flow-table td.group-cell {
+  border-left: 2px solid #4CAF50;
+  border-right: 2px solid #4CAF50;
+}
+
+.tool-flow-table td.single-cell-group {
+  border: 2px solid #4CAF50;
+}
+
+.tool-flow-table td.group-cell:not(.group-start) {
+  border-top: none;
+}
+
+.tool-flow-table td.group-cell:not(.group-end) {
+  border-bottom: none;
+}
+
+.pop-up-window {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000;
+  max-width: 200px;
+  font-size: 14px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-bottom: 15px;
+  width: 200px; 
+}
+
+.pop-up-window div {
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.add-value-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 100%; 
+}
+
+.add-value-input {
+  width: 45%;
+  padding: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-sizing: border-box; 
+}
+
+.add-value-btn {
+  width: 45%;
+  padding: 5px;
+  font-size: 14px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.add-value-btn:hover {
+  background-color: #45a049;
+}
+
+.close-btn {
+  display: block;
+  width: 100%;
+  padding: 5px 10px;
+  margin-top: 10px;
+  font-size: 14px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.hash-popup {
+  position: absolute;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  z-index: 1000;
+}
+
+.hash-popup input {
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+.hash-popup button {
+  margin-right: 5px;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+}
+
+.popup-content h2 {
+  margin-top: 0;
+}
+
+.popup-content input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 15px;
+}
+
+.tool-option-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  height: 36px;
+}
+
+.tool-option-row input {
+  flex-grow: 1;
+  height: 100%;
+  margin-top: 10px;
+  margin-right: 10px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.tool-option-row button {
+  height: 100%;
+  padding: 0 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.tool-option-row button:hover {
+  background-color: #45a049;
+}
+
+.param-input-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.param-input-row input {
+  width: 48%;
+  padding: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.popup-content button {
+  padding: 5px 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.popup-content button:hover {
+  background-color: #45a049;
 }
