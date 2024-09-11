@@ -1,6 +1,13 @@
 The Workbench Project
 ===
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+
+## Author
+Yunlong Lian
+
+
 ## Introduction
 
 This project is a work in progress. The purpose is to create a web application front-end to manage a simulation project. The basic idea and functionality follows the Sentaurus Workbench, but the architecture is different in significant ways.
