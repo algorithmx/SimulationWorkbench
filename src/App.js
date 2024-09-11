@@ -28,10 +28,10 @@ import useSystemMessage from './hooks/useSystemMessage';
 function App() {
   const [toolOptions, setToolOptions] = useState(['Tool A', 'Tool B', 'Tool C', 'Tool D']);
   const [toolScripts, setToolScripts] = useState({
-    'Tool A': '',
-    'Tool B': '',
-    'Tool C': '',
-    'Tool D': ''
+    'Tool A': { language: 'python', script: '' },
+    'Tool B': { language: 'python', script: '' },
+    'Tool C': { language: 'python', script: '' },
+    'Tool D': { language: 'python', script: '' }
   });
   const [tables, setTables] = useState([
     {
@@ -54,10 +54,10 @@ function App() {
     setTables(updatedTables);
   };
 
-  const updateToolScript = (tool, script) => {
+  const updateToolScript = (tool, script, language) => {
     setToolScripts(prevScripts => ({
       ...prevScripts,
-      [tool]: script
+      [tool]: { language, script }
     }));
   };
 

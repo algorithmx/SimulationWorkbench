@@ -174,7 +174,6 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
         // Add click event to add value button
         const addValueButton = popUpWindow.querySelector('.add-value-btn');
         const addValueInput = popUpWindow.querySelector('.add-value-input');
-        const uniqueValuesList = popUpWindow.querySelector('.unique-values-list');
         addValueButton.addEventListener('click', () => {
             const newValue = addValueInput.value.trim();
             if (newValue && !uniqueColumnValues.includes(newValue)) {
