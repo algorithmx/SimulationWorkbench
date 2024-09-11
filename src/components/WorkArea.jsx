@@ -23,7 +23,7 @@ import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import { ToolFlowTable } from './ToolFlowTable';
 import { useToolFlowTables } from '../hooks/useToolFlowTables';
 
-export function WorkArea({tables, toolOptions, toolScripts, setTables, workspaceTitle, setWorkspaceTitle}) {
+export function WorkArea({tables, toolOptions, toolScripts, setTables, workspaceTitle, setWorkspaceTitle, onUpdateSystemMessage}) {
     const {
         handleCellChange,
         handleAddColumn,
@@ -94,7 +94,7 @@ export function WorkArea({tables, toolOptions, toolScripts, setTables, workspace
                         </ContextMenuTrigger>
                     ))}
                     <div className="index-cell">
-                        <button className="add-row-btn" onClick={handleAddRow}>+</button>
+                        <button className="add-row-btn" onClick={() => handleAddRow(onUpdateSystemMessage)}>+</button>
                     </div>
                 </div>
                 <div className="tables-container">
@@ -105,10 +105,10 @@ export function WorkArea({tables, toolOptions, toolScripts, setTables, workspace
                                 onCellChange={(rowIndex, colIndex, value) =>
                                     handleCellChange(table.id, rowIndex, colIndex, value)
                                 }
-                                onAddColumn={(columnIndex) => handleAddColumn(table.id, columnIndex)}
-                                onDeleteColumn={(columnIndex) => handleDeleteColumn(table.id, columnIndex)}
-                                onAddTable={() => handleAddTable(table)}
-                                onDeleteTable={() => handleDeleteTable(table.id)}
+                                onAddColumn={(columnIndex) => handleAddColumn(table.id, columnIndex, onUpdateSystemMessage)}
+                                onDeleteColumn={(columnIndex) => handleDeleteColumn(table.id, columnIndex, onUpdateSystemMessage)}
+                                onAddTable={() => handleAddTable(table, onUpdateSystemMessage)}
+                                onDeleteTable={() => handleDeleteTable(table.id, onUpdateSystemMessage)}
                                 isOnlyTable={tables.length === 1}
                                 onContextMenu={handleContextMenu}
                                 handleHashClick={handleHashClick}
@@ -128,10 +128,10 @@ export function WorkArea({tables, toolOptions, toolScripts, setTables, workspace
                 </MenuItem>
             </ContextMenu>
             <ContextMenu id="index-cell-menu">
-                <MenuItem onClick={(e, data) => handleAddRowAbove(data.rowIndex)}>
+                <MenuItem onClick={(e, data) => handleAddRowAbove(data.rowIndex, onUpdateSystemMessage)}>
                     Add Row Above
                 </MenuItem>
-                <MenuItem onClick={(e, data) => handleDeleteRow(data.rowIndex)}>
+                <MenuItem onClick={(e, data) => handleDeleteRow(data.rowIndex, onUpdateSystemMessage)}>
                     Remove Row
                 </MenuItem>
             </ContextMenu>

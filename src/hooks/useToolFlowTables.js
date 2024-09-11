@@ -44,35 +44,39 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
         );
     };
 
-    const handleAddColumn = (tableId, columnIndex) => {
+    const handleAddColumn = (tableId, columnIndex, onUpdateSystemMessage) => {
+        onUpdateSystemMessage(`Add column at index ${columnIndex} in table id = ${tableId}`);
         setTables(prevTables =>
             prevTables.map(table =>
-                table.id === tableId ? addColumn(table, columnIndex) : table
+                table.id === tableId ? addColumn(table, columnIndex, onUpdateSystemMessage) : table
             )
         );
     };
 
-    const handleDeleteColumn = (tableId, columnIndex) => {
+    const handleDeleteColumn = (tableId, columnIndex, onUpdateSystemMessage) => {
+        onUpdateSystemMessage(`Delete column at index ${columnIndex} in table id = ${tableId}`);
         setTables(prevTables =>
             prevTables.map(table =>
-                table.id === tableId ? deleteColumn(table, columnIndex) : table
+                table.id === tableId ? deleteColumn(table, columnIndex, onUpdateSystemMessage) : table
             )
         );
     };
 
-    const handleAddTable = (tb) => {
-        const newTable = createNewTable(toolOptions, tb.data);
+    const handleAddTable = (tb, onUpdateSystemMessage) => {
+        const newTable = createNewTable(toolOptions, tb.data, onUpdateSystemMessage);
         setTables(prevTables => {
             const index = prevTables.findIndex(table => table.id === tb.id);
             return [...prevTables.slice(0, index + 1), newTable, ...prevTables.slice(index + 1)];
         });
     };
 
-    const handleDeleteTable = (tableId) => {
+    const handleDeleteTable = (tableId, onUpdateSystemMessage) => {
+        onUpdateSystemMessage(`Delete table id = ${tableId}`);
         setTables(prevTables => prevTables.filter(table => table.id !== tableId));
     };
 
-    const handleAddRow = () => {
+    const handleAddRow = (onUpdateSystemMessage) => {
+        onUpdateSystemMessage(`Add new row at bottom.`)
         setTables(prevTables =>
             prevTables.map(table => ({
                 ...table,
@@ -81,7 +85,8 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
         );
     };
 
-    const handleDeleteRow = (rowIndex) => {
+    const handleDeleteRow = (rowIndex, onUpdateSystemMessage) => {
+        onUpdateSystemMessage(`Delete row ${rowIndex}.`)
         setTables(prevTables =>
             prevTables.map(table => ({
                 ...table,
@@ -90,7 +95,8 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
         );
     };
 
-    const handleAddRowAbove = (rowIndex) => {
+    const handleAddRowAbove = (rowIndex, onUpdateSystemMessage) => {
+        onUpdateSystemMessage(`Add new row above row ${rowIndex}.`)
         setTables(prevTables =>
             prevTables.map(table => ({
                 ...table,

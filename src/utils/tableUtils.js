@@ -41,16 +41,21 @@ export const calculateCellGroups = (data) => {
   return groups;
 };
 
-export const createNewTable = (toolOptions, data) => ({
-    id: Date.now(),
+export const createNewTable = (toolOptions, data, onUpdateSystemMessage) => {
+  const tmp_id = Date.now();
+  onUpdateSystemMessage(`Create a new table id = ${tmp_id}`);
+  return {
+    id: tmp_id,
     data: [
         [{ value: toolOptions[0], colspan: 1 }],
         ['PNew'],
         ...data.slice(2).map(row => row.map(() => ''))
     ]
-});
+  };
+}
 
-export const addColumn = (table, columnIndex) => ({
+export const addColumn = (table, columnIndex) => {
+  return {
     ...table,
     data: table.data.map((row, rowIndex) => {
         if (rowIndex === 0) {
@@ -59,7 +64,8 @@ export const addColumn = (table, columnIndex) => ({
         const newCell = rowIndex === 1 ? 'PNew' : '';
         return [...row.slice(0, columnIndex + 1), newCell, ...row.slice(columnIndex + 1)];
     })
-});
+  }
+};
 
 export const deleteColumn = (table, columnIndex) => {
     const columnCount = table.data[1].length;
