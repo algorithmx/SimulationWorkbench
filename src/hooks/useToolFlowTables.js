@@ -43,23 +43,36 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
             )
         );
     };
-
     const handleAddColumn = (tableId, columnIndex, onUpdateSystemMessage) => {
-        onUpdateSystemMessage(`Add column at index ${columnIndex} in table id = ${tableId}`);
-        setTables(prevTables =>
-            prevTables.map(table =>
-                table.id === tableId ? addColumn(table, columnIndex, onUpdateSystemMessage) : table
-            )
+        let tableToolName = '';
+        setTables(prevTables => 
+            prevTables.map(table => {
+                if (table.id === tableId) {
+                    // Ensure we're accessing the correct property and handle potential undefined values
+                    tableToolName = table.data[0][0]?.value || table.data[0][0] || 'Unknown';
+                    return addColumn(table, columnIndex, onUpdateSystemMessage);
+                } else {
+                    return table;
+                }
+            })
         );
+        onUpdateSystemMessage(`Add column at index ${columnIndex} in table ${tableToolName} id=${tableId})`);
     };
 
     const handleDeleteColumn = (tableId, columnIndex, onUpdateSystemMessage) => {
-        onUpdateSystemMessage(`Delete column at index ${columnIndex} in table id = ${tableId}`);
+        let tableToolName = '';
         setTables(prevTables =>
-            prevTables.map(table =>
-                table.id === tableId ? deleteColumn(table, columnIndex, onUpdateSystemMessage) : table
-            )
+            prevTables.map(table => {
+                if (table.id === tableId) {
+                    // Ensure we're accessing the correct property and handle potential undefined values
+                    tableToolName = table.data[0][0]?.value || table.data[0][0] || 'Unknown';
+                    return deleteColumn(table, columnIndex, onUpdateSystemMessage);
+                } else {
+                    return table;
+                }
+            })
         );
+        onUpdateSystemMessage(`Delete column at index ${columnIndex} in table ${tableToolName} (id=${tableId})`);
     };
 
     const handleAddTable = (tb, onUpdateSystemMessage) => {
@@ -71,8 +84,15 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
     };
 
     const handleDeleteTable = (tableId, onUpdateSystemMessage) => {
-        onUpdateSystemMessage(`Delete table id = ${tableId}`);
-        setTables(prevTables => prevTables.filter(table => table.id !== tableId));
+        let tableToolName = '';
+        setTables(prevTables => {
+            const tableToDelete = prevTables.find(table => table.id === tableId);
+            if (tableToDelete) {
+                tableToolName = tableToDelete.data[0][0]?.value || tableToDelete.data[0][0] || 'Unknown';
+            }
+            return prevTables.filter(table => table.id !== tableId);
+        });
+        onUpdateSystemMessage(`Delete table ${tableToolName} (id=${tableId})`);
     };
 
     const handleAddRow = (onUpdateSystemMessage) => {

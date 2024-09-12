@@ -34,6 +34,31 @@ The Workbench Project is intended to be a more general purpose, cloud native sim
 
 ![](./images/p4.jpeg)
 
+
+## Feature wishlist
+
+- [ ] Tool dependency
+  - [ ] DAG modelling
+  - [ ] Parallel execution of simulation tasks
+
+- [ ] Logging
+  - [ ] Display log for every action from user in system message window
+  - [ ] Exporting log
+  - [ ] Workspace reconstruction from log
+
+- [ ] Control
+  - [ ] Log as script
+  - [ ] Strategy for task execution priority
+
+- [ ] UI component style
+  - [ ] Consistency
+  - [ ] Intelligence
+
+- [ ] Code execution
+  - [ ] Compose and execute tool entirely within front-end
+  - [ ] UI as a calculator for immediate verification
+
+
 ## Demands are welcome
 
 If you have any idea or specific demand, please let me know by opening an issue. 
