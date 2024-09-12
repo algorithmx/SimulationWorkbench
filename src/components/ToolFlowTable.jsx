@@ -173,6 +173,6 @@ ToolFlowTable.propTypes = {
     isOnlyTable: PropTypes.bool.isRequired,
     onContextMenu: PropTypes.func.isRequired,
     handleHashClick: PropTypes.func.isRequired,
-    toolOptions: PropTypes.arrayOf(PropTypes.string).isRequired,
+    toolOptions: PropTypes.objectOf(PropTypes.string).isRequired,
     tableId: PropTypes.number.isRequired,
 };

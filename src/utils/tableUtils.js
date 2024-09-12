@@ -18,6 +18,17 @@
 */
 
 
+export function getTableToolName(table) {
+  if (table && table.data && table.data.length > 0) {
+    const firstRow = table.data[0];
+    if (firstRow.length > 0) {
+      const firstCell = firstRow[0];
+      return firstCell.value;
+    }
+  }
+  return 'Unknown';
+}
+
 export const calculateCellGroups = (data) => {
   const groups = [];
   const valueRows = data.slice(2);
@@ -43,11 +54,11 @@ export const calculateCellGroups = (data) => {
 
 export const createNewTable = (toolOptions, data, onUpdateSystemMessage) => {
   const tmp_id = Date.now();
-  onUpdateSystemMessage(`Create a new table id = ${tmp_id}`);
+  onUpdateSystemMessage(`Create a new table [${Object.keys(toolOptions)[0]}] (id=${tmp_id})`);
   return {
     id: tmp_id,
     data: [
-        [{ value: toolOptions[0], colspan: 1 }],
+        [{ value: Object.keys(toolOptions)[0], colspan: 1 }],
         ['PNew'],
         ...data.slice(2).map(row => row.map(() => ''))
     ]

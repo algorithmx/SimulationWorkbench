@@ -145,7 +145,7 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
     };
 
     const handleCreateParamGrid = () => {
-        const newTable = createParameterGrid(localParamValues, toolOptions[0], tables.length + 1);
+        const newTable = createParameterGrid(localParamValues, Object.keys(toolOptions)[0], tables.length + 1);
         if (newTable) {
             onUpdateTables([...tables, newTable]);
             setIsParamGridPopupOpen(false);

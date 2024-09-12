@@ -18,11 +18,14 @@
 */
 
 
-import { createNewTable, addColumn, deleteColumn } from '../utils/tableUtils';
+import { createNewTable, addColumn, deleteColumn, getTableToolName } from '../utils/tableUtils';
 
 
 export function useToolFlowTables({tables, setTables, toolOptions, toolScripts}) {
     const handleCellChange = (tableId, rowIndex, colIndex, value) => {
+        // This code block shows how the table data is structured and manipulated, 
+        // which aligns with our understanding of the table's content.
+        console.log(`tableId ${tableId}, rowIndex ${rowIndex}, colIndex ${colIndex}, value ${value}`);
         setTables(prevTables =>
             prevTables.map(table =>
                 table.id === tableId
@@ -43,36 +46,36 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
             )
         );
     };
+
     const handleAddColumn = (tableId, columnIndex, onUpdateSystemMessage) => {
-        let tableToolName = '';
         setTables(prevTables => 
             prevTables.map(table => {
                 if (table.id === tableId) {
-                    // Ensure we're accessing the correct property and handle potential undefined values
-                    tableToolName = table.data[0][0]?.value || table.data[0][0] || 'Unknown';
+                    let tableToolName = getTableToolName(table);
+                    onUpdateSystemMessage(`Add column at index ${columnIndex} in table [${tableToolName}] (id=${tableId})`);
                     return addColumn(table, columnIndex, onUpdateSystemMessage);
                 } else {
                     return table;
                 }
             })
         );
-        onUpdateSystemMessage(`Add column at index ${columnIndex} in table ${tableToolName} id=${tableId})`);
+        
     };
 
     const handleDeleteColumn = (tableId, columnIndex, onUpdateSystemMessage) => {
-        let tableToolName = '';
         setTables(prevTables =>
             prevTables.map(table => {
                 if (table.id === tableId) {
                     // Ensure we're accessing the correct property and handle potential undefined values
-                    tableToolName = table.data[0][0]?.value || table.data[0][0] || 'Unknown';
+                    let tableToolName = getTableToolName(table);
+                    onUpdateSystemMessage(`Delete column at index ${columnIndex} in table [${tableToolName}] (id=${tableId})`);
                     return deleteColumn(table, columnIndex, onUpdateSystemMessage);
                 } else {
                     return table;
                 }
             })
         );
-        onUpdateSystemMessage(`Delete column at index ${columnIndex} in table ${tableToolName} (id=${tableId})`);
+        
     };
 
     const handleAddTable = (tb, onUpdateSystemMessage) => {
@@ -84,15 +87,15 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
     };
 
     const handleDeleteTable = (tableId, onUpdateSystemMessage) => {
-        let tableToolName = '';
         setTables(prevTables => {
             const tableToDelete = prevTables.find(table => table.id === tableId);
             if (tableToDelete) {
-                tableToolName = tableToDelete.data[0][0]?.value || tableToDelete.data[0][0] || 'Unknown';
+                let tableToolName = getTableToolName(tableToDelete);
+                onUpdateSystemMessage(`Delete table [${tableToolName}] (id=${tableId})`);
             }
             return prevTables.filter(table => table.id !== tableId);
         });
-        onUpdateSystemMessage(`Delete table ${tableToolName} (id=${tableId})`);
+        
     };
 
     const handleAddRow = (onUpdateSystemMessage) => {
