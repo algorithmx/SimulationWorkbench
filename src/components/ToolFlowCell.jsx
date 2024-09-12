@@ -18,44 +18,57 @@
 */
 
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { ContextMenuTrigger } from "react-contextmenu";
+import { makePopup } from './Popup';
 
 export function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDeleteTable, isOnlyTable, toolOptions, tableId }) {
-    const [isOpen, setIsOpen] = useState(false);
     const cellRef = useRef(null);
 
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (cellRef.current && !cellRef.current.contains(e.target)) {
-                setIsOpen(false);
-            }
+    const handleHashClick = (event) => {
+        event.stopPropagation();
+        const toolEntries = Object.entries(toolOptions);
+        
+        const popUpWindow = makePopup(event, `
+            <div class="tool-options-list">
+                ${toolEntries.map(([toolName, description]) => 
+                    `<div class="tool-option">${toolName}: ${description}</div>`
+                ).join('')}
+            </div>
+            <button class="close-btn">Close</button>
+        `);
+
+        document.body.appendChild(popUpWindow);
+
+        const closePopup = () => {
+            popUpWindow.remove();
+            document.removeEventListener('keydown', handleEscKey);
+            document.removeEventListener('click', closePopupOnOutsideClick);
         };
+
+        const handleToolSelect = (toolName) => {
+            onCellChange(toolName);
+            closePopup();
+        };
+
+        popUpWindow.querySelectorAll('.tool-option').forEach(option => {
+            option.addEventListener('click', () => handleToolSelect(option.textContent.split(':')[0]));
+        });
+
+        const closeButton = popUpWindow.querySelector('.close-btn');
+        closeButton.addEventListener('click', closePopup);
 
         const handleEscKey = (e) => {
-            if (e.key === 'Escape') {
-                setIsOpen(false);
-            }
+            if (e.key === 'Escape') closePopup();
         };
 
-        document.addEventListener('click', handleClickOutside);
+        const closePopupOnOutsideClick = (e) => {
+            if (!popUpWindow.contains(e.target) && e.target !== event.target) closePopup();
+        };
+
         document.addEventListener('keydown', handleEscKey);
-
-        return () => {
-            document.removeEventListener('click', handleClickOutside);
-            document.removeEventListener('keydown', handleEscKey);
-        };
-    }, []);
-
-    const togglePopup = (e) => {
-        e.stopPropagation();
-        setIsOpen(prev => !prev);
-    };
-
-    const handleSelect = (tool) => {
-        onCellChange(tool);
-        setIsOpen(false);
+        setTimeout(() => document.addEventListener('click', closePopupOnOutsideClick), 0);
     };
 
     return (
@@ -65,30 +78,21 @@ export function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDelet
             ref={cellRef}
         >
             <ContextMenuTrigger id="tool-flow-cell-menu" collect={() => ({ tableId })}>
-                <div className="tool-flow-header">
-                    <button 
-                        className="delete-table-btn" 
-                        onClick={onDeleteTable}
-                        disabled={isOnlyTable}
-                    >
-                        -
-                    </button>
-                    <div className="tool-selector" onClick={togglePopup}>
+                <div className="tool-flow-content">
+                    <div className="tool-selector">
                         <span>{value || Object.keys(toolOptions)[0]}</span>
-                        {isOpen && (
-                            <ul className="tool-options">
-                                {Object.entries(toolOptions).map(([toolName, description], index) => (
-                                    <li key={index} onClick={(e) => { 
-                                        e.stopPropagation(); 
-                                        handleSelect(toolName); 
-                                    }}>
-                                        {toolName}: {description}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
                     </div>
-                    <button className="add-table-btn" onClick={onAddTable}>+</button>
+                    <div className="tool-flow-buttons">
+                        <button 
+                            className="delete-table-btn" 
+                            onClick={onDeleteTable}
+                            disabled={isOnlyTable}
+                        >
+                            -
+                        </button>
+                        <button className="hash-btn" onClick={handleHashClick}>#</button>
+                        <button className="add-table-btn" onClick={onAddTable}>+</button>
+                    </div>
                 </div>
             </ContextMenuTrigger>
         </th>

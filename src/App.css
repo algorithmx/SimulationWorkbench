@@ -129,99 +129,42 @@ main {
 .tool-flow-cell {
   cursor: pointer;
   position: relative;
+  padding: 0;
 }
 
-.tool-selector {
-  cursor: pointer;
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
-  margin: 0;
-  font-size: 14px;
-  padding: 0 2px;
-  z-index: 50000;
-}
-
-
-.parameter-cell {
+.tool-flow-content {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: stretch;
   height: 100%;
-  padding: 2px 0;
-}
-
-.parameter-cell-line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  height: 50%;
-}
-
-.parameter-cell-buttons {
-  padding: 0;
-  text-align: center;
-  text-decoration: none;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: none;
   width: 100%;
 }
 
-.add-column-btn,
-.add-table-btn,
-.delete-column-btn,
-.delete-table-btn,
-.hash-btn {
+.tool-selector {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  width: 100%;
+}
+
+.tool-flow-buttons {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px;
+  width: 100%;
+}
+
+.tool-flow-buttons button {
+  flex: 1;
+  margin: 0 1px;
   height: 20px;
   font-size: 15px;
   border: none;
   color: white;
   cursor: pointer;
-}
-
-.add-column-btn,
-.add-table-btn {
-  background-color: #4CAF50;
-}
-
-.delete-column-btn,
-.delete-table-btn {
-  background-color: #f44336;
-}
-
-.hash-btn {
-  background-color: #61b3d0;
-  width: 28px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 1px;
-  font-weight: bold;
-}
-
-.add-column-btn:hover,
-.add-table-btn:hover {
-  background-color: #45a049;
-}
-
-.delete-column-btn:hover,
-.delete-table-btn:hover {
-  background-color: #d32f2f;
-}
-
-.hash-btn:hover {
-  background-color: #4a8ba3;
-}
-
-.delete-column-btn:disabled,
-.delete-table-btn:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
 }
 
 .index-column .index-cell:nth-child(1),
@@ -469,6 +412,15 @@ main {
   margin-top: 15px;
 }
 
+.tool-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: left;
+  margin-bottom: 10px;
+  height: 20px;
+  cursor: pointer;
+}
+
 .tool-option-row {
   display: flex;
   justify-content: space-between;
@@ -582,34 +534,28 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: stretch;
   height: 100%;
   padding: 2px 0;
 }
 
 .parameter-cell-line {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
   width: 100%;
-  height: 50%;
 }
 
 .parameter-cell-buttons {
-  padding: 0;
-  text-align: center;
-  text-decoration: none;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  border: none;
   width: 100%;
 }
 
 .add-column-btn,
 .add-table-btn,
 .delete-column-btn,
-.delete-table-btn,
-.hash-btn {
+.delete-table-btn {
   height: 20px;
   font-size: 15px;
   border: none;
@@ -628,14 +574,13 @@ main {
 }
 
 .hash-btn {
-  background-color: #61b3d0;
-  width: 28px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 1px;
+  height: 20px;
+  font-size: 15px;
+  border: none;
+  color: white;
+  cursor: pointer;
   font-weight: bold;
+  background-color: #61b3d0;  
 }
 
 .add-column-btn:hover,
