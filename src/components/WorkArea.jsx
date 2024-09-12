@@ -19,6 +19,7 @@
 
 
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import { ToolFlowTable } from './ToolFlowTable';
 import { useToolFlowTables } from '../hooks/useToolFlowTables';
@@ -146,3 +147,13 @@ export function WorkArea({tables, toolOptions, toolScripts, setTables, workspace
         </section>
     );
 }
+
+WorkArea.propTypes = {
+    tables: PropTypes.array.isRequired,
+    toolOptions: PropTypes.objectOf(PropTypes.string).isRequired,
+    toolScripts: PropTypes.object.isRequired,
+    setTables: PropTypes.func.isRequired,
+    workspaceTitle: PropTypes.string.isRequired,
+    setWorkspaceTitle: PropTypes.func.isRequired,
+    onUpdateSystemMessage: PropTypes.func.isRequired,
+};
