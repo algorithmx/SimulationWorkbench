@@ -18,8 +18,13 @@
 */
 
 
-import { createNewTable, addColumn, deleteColumn, getTableToolName } from '../utils/tableUtils';
-
+import { 
+    createNewTable, 
+    addColumn, 
+    deleteColumn, 
+    getTableToolName,
+    getUniqueColumnValues } from '../utils/tableUtils';
+import { makePopup } from '../components/Popup';
 
 export function useToolFlowTables({tables, setTables, toolOptions, toolScripts}) {
     const handleCellChange = (tableId, rowIndex, colIndex, value) => {
@@ -133,25 +138,20 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
     };
 
     const handleHashClick = (columnIndex, tabledata, event) => {
-        // Function to get current unique column values
-        const getUniqueColumnValues = () => {
-            const columnValues = tabledata.slice(2).map(row => row[columnIndex]);
-            return [...new Set(columnValues)].filter(value => value !== '');
-        };
-
-        let uniqueColumnValues = getUniqueColumnValues();
-        let newlyAddedValues = [];
-        
-        // Remove any existing popup
-        const existingPopup = document.querySelector('.pop-up-window');
-        if (existingPopup) {
-            existingPopup.remove();
-        }
-        
+        let uniqueColumnValues = getUniqueColumnValues(tabledata, columnIndex);
         // Create a pop-up window with the column values
-        const popUpWindow = document.createElement('div');
-        popUpWindow.className = 'pop-up-window';
-        
+        const popUpWindow = makePopup(event, `
+            <div class="unique-values-list">${uniqueColumnValues.join('<br>')}</div>
+            <div class="add-value-container">
+                <input type="text" class="add-value-input" placeholder="Add new value">
+                <button class="add-value-btn">Add</button>
+            </div>
+            <button class="close-btn">Close</button>
+        `);
+
+        // Add the popUpWindow to the document body
+        document.body.appendChild(popUpWindow);
+
         // Function to update the unique values list in the popup
         const updateUniqueValuesList = () => {
             const uniqueValuesList = popUpWindow.querySelector('.unique-values-list');
@@ -160,25 +160,8 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
             }
         };
 
-        popUpWindow.innerHTML = `
-            <div class="unique-values-list">${uniqueColumnValues.join('<br>')}</div>
-            <div class="add-value-container">
-                <input type="text" class="add-value-input" placeholder="Add new value">
-                <button class="add-value-btn">Add</button>
-            </div>
-            <button class="close-btn">Close</button>
-        `;
-        
-        // Position the popUpWindow near the hash button
-        const rect = event.target.getBoundingClientRect();
-        popUpWindow.style.position = 'absolute';
-        popUpWindow.style.left = `${rect.left}px`;
-        popUpWindow.style.top = `${rect.bottom + 5}px`;
-
-        // Add the popUpWindow to the document body
-        document.body.appendChild(popUpWindow);
-        
         // Function to close the popup and update the table
+        let newlyAddedValues = [];
         const closePopup = () => {
             popUpWindow.remove();
             if (newlyAddedValues.length > 0) {
@@ -199,7 +182,7 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
         // Add click event to close button
         const closeButton = popUpWindow.querySelector('.close-btn');
         closeButton.addEventListener('click', closePopup);
-        
+
         // Add click event to add value button
         const addValueButton = popUpWindow.querySelector('.add-value-btn');
         const addValueInput = popUpWindow.querySelector('.add-value-input');
@@ -212,7 +195,7 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
                 addValueInput.value = '';
             }
         });
-        
+
         // Handle Esc key press
         const handleEscKey = (e) => {
             if (e.key === 'Escape') {
@@ -226,10 +209,10 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
                 closePopup();
             }
         };
-        
+
         // Add event listeners
         document.addEventListener('keydown', handleEscKey);
-        
+
         // Prevent immediate closure and add the click event listener
         event.stopPropagation();
         setTimeout(() => {
@@ -239,7 +222,7 @@ export function useToolFlowTables({tables, setTables, toolOptions, toolScripts})
         // Update unique values when tables change
         setTables(prevTables => {
             setTimeout(() => {
-                uniqueColumnValues = getUniqueColumnValues();
+                uniqueColumnValues = getUniqueColumnValues(tabledata, columnIndex);
                 updateUniqueValuesList();
             }, 0);
             return prevTables;

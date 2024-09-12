@@ -93,3 +93,9 @@ export const deleteColumn = (table, columnIndex) => {
         })
     };
 };
+
+// Function to get current unique column values
+export const getUniqueColumnValues = (td, col) => {
+    const columnValues = td.slice(2).map(row => row[col]);
+    return [...new Set(columnValues)].filter(value => value !== '');
+};

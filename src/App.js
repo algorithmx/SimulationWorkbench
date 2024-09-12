@@ -40,9 +40,9 @@ function App() {
   });
   const [tables, setTables] = useState([
     {
-        id: 1,
+        id: Date.now(),
         data: [
-            [{ value: toolOptions[0], colspan: 1 }],
+            [{ value: Object.keys(toolOptions)[0], colspan: 1 }],
             ['P1'],
             ['']
         ]
