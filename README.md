@@ -37,6 +37,11 @@ The Workbench Project is intended to be a more general purpose, cloud native sim
 
 ## Feature wishlist
 
+- [ ] Core data structure
+  - [ ] Status table
+  - [ ] Tool flow
+  - [ ] Tree of parameters
+
 - [ ] Tool dependency
   - [ ] DAG modelling
   - [ ] Parallel execution of simulation tasks
@@ -54,7 +59,8 @@ The Workbench Project is intended to be a more general purpose, cloud native sim
   - [ ] Consistency
   - [ ] Intelligence
 
-- [ ] Code execution
+- [ ] Code editor and execution
+  - [ ] Integrate [monaco-editor](https://github.com/react-monaco-editor/react-monaco-editor) or [codejar](https://github.com/antonmedv/codejar)
   - [ ] Compose and execute tool entirely within front-end
   - [ ] UI as a calculator for immediate verification
 

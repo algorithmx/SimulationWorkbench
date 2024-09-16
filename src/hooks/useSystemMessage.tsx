@@ -17,21 +17,21 @@
  * Copyright (C) [2024] [Yunlong Lian]
 */
 
-// import React from 'react';
+import { useState, useCallback } from 'react';
 
-export function makePopup(event, innerHTML_content) {
-    // Remove any existing popup
-    const existingPopup = document.querySelector('.pop-up-window');
-    if (existingPopup) {
-        existingPopup.remove();
-    }
-    // Create a pop-up window with the column values
-    const popUpWindow = document.createElement('div');
-    popUpWindow.className = 'pop-up-window';
-    popUpWindow.innerHTML = innerHTML_content;
-    const rect = event.target.getBoundingClientRect();
-    popUpWindow.style.position = 'absolute';
-    popUpWindow.style.left = `${rect.left}px`;
-    popUpWindow.style.top = `${rect.bottom + 5}px`;
-    return popUpWindow;
+interface SystemMessageHook {
+  systemMessages: string[];
+  updateSystemMessage: (message: string) => void;
 }
+
+const useSystemMessage = (initialMessage: string = ''): SystemMessageHook => {
+  const [systemMessages, setSystemMessages] = useState<string[]>([initialMessage]);
+
+  const updateSystemMessage = useCallback((message: string): void => {
+    setSystemMessages(prevMessages => [...prevMessages, message]);
+  }, []);
+
+  return { systemMessages, updateSystemMessage };
+};
+
+export default useSystemMessage;

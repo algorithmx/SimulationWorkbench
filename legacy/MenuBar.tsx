@@ -18,121 +18,133 @@
 */
 
 
-import React, { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { createParameterGrid, ParamInputRow } from '../utils/ParameterGridUtils';
 import 'highlight.js/styles/atom-one-dark.css';
 import { ScriptEditor } from './ScriptEditor';
+import { Tool } from '../utils/Tool';
+import { SimulationProject } from '../utils/SimulationProject';
 
-export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions, onUpdateTables, onUpdateToolScript, workspaceTitle, onUpdateWorkspaceTitle, onUpdateSystemMessage }) {
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [editableOptions, setEditableOptions] = useState(toolOptions);
-    const [newTool, setNewTool] = useState('');
+interface MenuBarProps {
+    tables: SimulationProject; 
+    tools: Tool[];
+    onUpdateTables: (tables: any) => void;
+    onUpdateTools: (tools: Tool[]) => void;
+    onUpdateWorkspaceTitle: (title: string) => void;
+    onUpdateSystemMessage: (message: string) => void;
+}
+
+interface ParamValue {
+    name: string;
+    value: string;
+}
+
+export function MenuBar({
+    tables,
+    tools,
+    onUpdateTables,
+    onUpdateTools,
+    onUpdateWorkspaceTitle,
+    onUpdateSystemMessage
+}: MenuBarProps) {
+    const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+    const [editableOptions, setEditableOptions] = useState<{ [key: string]: Tool }>({});
+    const [newTool, setNewTool] = useState<Tool>(new Tool('', '', '', 'python'));
+
     const exportStateToJSON = useCallback(() => {
-        const state = { toolOptions, tables, toolScripts, workspaceTitle };
+        const state = { tools, tables, workspaceTitle: tables.getName() };
         const jsonString = JSON.stringify(state, null, 2);
-        
         const blob = new Blob([jsonString], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        
         const a = document.createElement('a');
         a.href = url;
         // Use workspaceTitle for the filename, fallback to 'workspace' if empty
-        const filename = (workspaceTitle.trim() || 'workspace').replace(/\s+/g, '_').toLowerCase();
+        const filename = (tables.getName().trim() || 'workspace').replace(/\s+/g, '_').toLowerCase();
         a.download = `${filename}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-    }, [toolOptions, tables, toolScripts, workspaceTitle]);
+    }, [tables, tools, tables.getName()]);
 
-    const fileInputRef = useRef(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleImportClick = () => {
-        fileInputRef.current.click();
+        fileInputRef.current?.click();
     };
 
-    const importStateFromJSON = useCallback((event) => {
-        const file = event.target.files[0];
+    const importStateFromJSON = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    const importedState = JSON.parse(e.target.result);
-                    if (importedState.toolOptions && importedState.tables && importedState.toolScripts && importedState.workspaceTitle) {
-                        onUpdateToolOptions(importedState.toolOptions);
+                    const importedState = JSON.parse(e.target?.result as string);
+                    if (importedState.tools && importedState.tables && importedState.workspaceTitle) {
+                        onUpdateTools(importedState.tools);
                         onUpdateTables(importedState.tables);
-                        Object.entries(importedState.toolScripts).forEach(([tool, script]) => {
-                            onUpdateToolScript(tool, script.script, script.language);
-                        });
                         onUpdateWorkspaceTitle(importedState.workspaceTitle);
                         onUpdateSystemMessage(`Workspace "${importedState.workspaceTitle}" loaded successfully from file "${file.name}"!`);
                     } else {
-                        alert('Invalid JSON structure');
+                        throw new Error('Invalid JSON structure');
                     }
-                } catch (error) {
+                } catch (error: any) {
                     alert('Error parsing JSON: ' + error.message);
                 }
             };
             reader.readAsText(file);
         }
-    }, [onUpdateToolOptions, onUpdateTables, onUpdateToolScript, onUpdateWorkspaceTitle, onUpdateSystemMessage]);
+    }, []);
 
     const handleTogglePopup = () => {
         setIsPopupOpen(!isPopupOpen);
-        setEditableOptions(toolOptions);
-        setNewTool('');
+        setEditableOptions(Object.fromEntries(tools.map(tool => [tool.name, tool])));
+        setNewTool(new Tool('', '', '', 'python'));
         setCurrentEditingTool(null); // Add this line to close the "Edit Script" popup when toggling the main popup
     };
 
-    const handleOptionChange = (toolName, field, value) => {
+    const handleOptionChange = (tool: Tool, field: string, value: string) => {
         setEditableOptions(prevOptions => ({
             ...prevOptions,
-            [toolName]: field === 'name' 
-                ? { ...prevOptions[toolName], [value]: prevOptions[toolName] }
-                : (typeof value === 'string' ? value : JSON.stringify(value))
+            [tool.name]: { ...tool, [field]: value }
         }));
     };
 
     const handleSaveChanges = () => {
-        const updatedOptions = Object.entries(editableOptions)
-            .filter(([toolName, description]) => 
-                toolName.trim() !== '' && 
-                (typeof description === 'string' ? description.trim() !== '' : true)
-            )
-            .reduce((acc, [toolName, description]) => {
-                acc[toolName] = description;
-                return acc;
-            }, {});
+        const updatedTools = Object.values(editableOptions).filter(tool => 
+            tool.name.trim() !== '' && tool.description.trim() !== ''
+        );
 
-        if (newTool.name && newTool.name.trim() !== '' && newTool.description && newTool.description.trim() !== '') {
-            updatedOptions[newTool.name.trim()] = newTool.description.trim();
+        if (newTool.name.trim() !== '' && newTool.description.trim() !== '') {
+            updatedTools.push(newTool);
         }
 
-        onUpdateToolOptions(updatedOptions);
+        onUpdateTools(updatedTools);
         setIsPopupOpen(false);
-        setCurrentEditingTool(null); // Add this line to close the "Edit Script" popup
+        setCurrentEditingTool(null);
     };
 
-    const [currentEditingTool, setCurrentEditingTool] = useState(null);
+    const [currentEditingTool, setCurrentEditingTool] = useState<Tool | null>(null);
 
-    const handleEditScript = useCallback((tool) => {
+    const handleEditScript = useCallback((tool: Tool) => {
         setCurrentEditingTool(tool);
     }, []);
 
-    const handleSaveScript = useCallback((tool, script, language) => {
-        onUpdateToolScript(tool, script, language);
+    const handleSaveScript = useCallback((tool: Tool, script: string, language: string) => {
+        const updatedTool = { ...tool, scripts: script, language };
+        onUpdateTools(tools.map(t => t.name === tool.name ? updatedTool : t));
         setCurrentEditingTool(null);
-    }, [onUpdateToolScript]);
+    }, [onUpdateTools, tools]);
 
     const [isParamGridPopupOpen, setIsParamGridPopupOpen] = useState(false);
-    const [localParamValues, setLocalParamValues] = useState([]);
+    const [localParamValues, setLocalParamValues] = useState<ParamValue[]>([]);
 
     const handleToggleParamGridPopup = () => {
         setIsParamGridPopupOpen(!isParamGridPopupOpen);
         setLocalParamValues([]);
     };
 
-    const handleParamChange = (index, field, value) => {
+    const handleParamChange = (index: number, field: keyof ParamValue, value: string) => {
         setLocalParamValues(prevValues => {
             const newValues = [...prevValues];
             newValues[index] = { ...newValues[index], [field]: value };
@@ -145,9 +157,9 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
     };
 
     const handleCreateParamGrid = () => {
-        const newTable = createParameterGrid(localParamValues, Object.keys(toolOptions)[0], tables.length + 1);
+        const newTable = createParameterGrid(localParamValues, Object.keys(tools)[0], tables.getNumberOfRows() + 1);
         if (newTable) {
-            onUpdateTables([...tables, newTable]);
+            onUpdateTables(newTable);
             setIsParamGridPopupOpen(false);
         }
     };
@@ -172,19 +184,19 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
                 <div className="popup-overlay">
                     <div className="popup-content">
                         <h2>Modify Tool Options</h2>
-                        {Object.entries(editableOptions).map(([toolName, description]) => (
-                            <div key={toolName} className="tool-option-row">
+                        {tools.map((tool) => (
+                            <div key={tool.name} className="tool-option-row">
                                 <input
                                     type="text"
-                                    value={toolName}
-                                    onChange={(e) => handleOptionChange(toolName, 'name', e.target.value)}
+                                    value={tool.name}
+                                    onChange={(e) => handleOptionChange(tool, 'name', e.target.value)}
                                 />
                                 <input
                                     type="text"
-                                    value={description}
-                                    onChange={(e) => handleOptionChange(toolName, 'description', e.target.value)}
+                                    value={tool.description}
+                                    onChange={(e) => handleOptionChange(tool, 'description', e.target.value)}
                                 />
-                                <button onClick={() => handleEditScript(toolName)}>Edit Script</button>
+                                <button onClick={() => handleEditScript(tool)}>Edit Script</button>
                             </div>
                         ))}
                         <input
@@ -214,7 +226,7 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
                             <ParamInputRow
                                 key={index}
                                 param={param}
-                                onChange={(field, value) => handleParamChange(index, field, value)}
+                                onChange={(field: keyof ParamValue, value: string) => handleParamChange(index, field, value)}
                             />
                         ))}
                         <button onClick={addParameter}>Add Parameter</button>
@@ -227,10 +239,11 @@ export function MenuBar({ tables, toolOptions, toolScripts, onUpdateToolOptions,
             )}
             {currentEditingTool && (
                 <ScriptEditor
-                    tool={currentEditingTool}
-                    script={toolScripts[currentEditingTool]?.script || ''}
-                    language={toolScripts[currentEditingTool]?.language || 'python'}
-                    onSave={handleSaveScript}
+                    tool={currentEditingTool.name}
+                    script={currentEditingTool.scripts}
+                    language={currentEditingTool.language}
+                    onSave={(script: string, language: string) => handleSaveScript(currentEditingTool, script, language)}
+                    onClose={() => setCurrentEditingTool(null)}
                 />
             )}
         </>

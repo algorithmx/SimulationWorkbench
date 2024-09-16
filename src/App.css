@@ -24,6 +24,14 @@ main {
 .work-area {
   flex: 1;
   padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.work-area .rg-root {
+  flex-grow: 1;
+  height: calc(100% - 40px); /* Adjust based on your title input height */
 }
 
 .workspace-title-input {

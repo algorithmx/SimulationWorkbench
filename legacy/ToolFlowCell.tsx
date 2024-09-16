@@ -19,21 +19,39 @@
 
 
 import React, { useRef } from 'react';
-import PropTypes from 'prop-types';
-import { ContextMenuTrigger } from "react-contextmenu";
+import { Tool } from '../utils/Tool';
+import { ContextMenuTrigger } from "rctx-contextmenu";
 import { makePopup } from './Popup';
 
-export function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDeleteTable, isOnlyTable, toolOptions, tableId }) {
-    const cellRef = useRef(null);
 
-    const handleHashClick = (event) => {
+interface ToolFlowCellProps {
+    value: string;
+    colspan: number;
+    onCellChange: (value: string) => void;
+    onAddTable: () => void;
+    onDeleteTable: () => void;
+    isOnlyTable: boolean;
+    tools: Tool[];
+    tableId: number;
+}
+
+export function ToolFlowCell({ 
+    value, 
+    colspan, 
+    onCellChange, 
+    onAddTable, 
+    onDeleteTable, 
+    isOnlyTable, 
+    tools, 
+    tableId 
+}: ToolFlowCellProps) {
+
+    const handleHashClick = (event: React.MouseEvent) => {
         event.stopPropagation();
-        const toolEntries = Object.entries(toolOptions);
-        
-        const popUpWindow = makePopup(event, `
+        const popUpWindow = makePopup(event.nativeEvent, `
             <div class="tool-options-list">
-                ${toolEntries.map(([toolName, description]) => 
-                    `<div class="tool-option">${toolName}: ${description}</div>`
+                ${tools.map((t) => 
+                    `<div class="tool-option">${t.name}: ${t.description}</div>`
                 ).join('')}
             </div>
             <button class="close-btn">Close</button>
@@ -47,40 +65,44 @@ export function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDelet
             document.removeEventListener('click', closePopupOnOutsideClick);
         };
 
-        const handleToolSelect = (toolName) => {
+        const handleToolSelect = (toolName: string) => {
             onCellChange(toolName);
             closePopup();
         };
 
         popUpWindow.querySelectorAll('.tool-option').forEach(option => {
-            option.addEventListener('click', () => handleToolSelect(option.textContent.split(':')[0]));
+            option.addEventListener('click', () => {
+                const toolName = option.textContent?.split(':')[0];
+                if (toolName) handleToolSelect(toolName);
+            });
         });
 
         const closeButton = popUpWindow.querySelector('.close-btn');
-        closeButton.addEventListener('click', closePopup);
+        if (closeButton) closeButton.addEventListener('click', closePopup);
 
-        const handleEscKey = (e) => {
+        const handleEscKey = (e: KeyboardEvent) => {
             if (e.key === 'Escape') closePopup();
         };
 
-        const closePopupOnOutsideClick = (e) => {
-            if (!popUpWindow.contains(e.target) && e.target !== event.target) closePopup();
+        const closePopupOnOutsideClick = (e: MouseEvent) => {
+            if (!popUpWindow.contains(e.target as Node) && e.target !== event.target) closePopup();
         };
 
         document.addEventListener('keydown', handleEscKey);
         setTimeout(() => document.addEventListener('click', closePopupOnOutsideClick), 0);
     };
 
+    const cellRef = useRef<HTMLTableCellElement>(null);
     return (
         <th 
             colSpan={colspan || 1} 
             className="tool-flow-cell" 
             ref={cellRef}
         >
-            <ContextMenuTrigger id="tool-flow-cell-menu" collect={() => ({ tableId })}>
+            <ContextMenuTrigger id="tool-flow-cell-menu">
                 <div className="tool-flow-content">
                     <div className="tool-selector">
-                        <span>{value || Object.keys(toolOptions)[0]}</span>
+                        <span>{value || tools[0].name}</span>
                     </div>
                     <div className="tool-flow-buttons">
                         <button 
@@ -98,14 +120,3 @@ export function ToolFlowCell({ value, colspan, onCellChange, onAddTable, onDelet
         </th>
     );
 }
-
-ToolFlowCell.propTypes = {
-    value: PropTypes.string,
-    colspan: PropTypes.number,
-    onCellChange: PropTypes.func.isRequired,
-    onAddTable: PropTypes.func.isRequired,
-    onDeleteTable: PropTypes.func.isRequired,
-    isOnlyTable: PropTypes.bool.isRequired,
-    toolOptions: PropTypes.objectOf(PropTypes.string).isRequired,
-    tableId: PropTypes.number.isRequired,
-};

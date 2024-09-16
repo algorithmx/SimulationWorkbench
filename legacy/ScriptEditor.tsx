@@ -1,7 +1,28 @@
 import { useEffect, useRef } from 'react';
 
-export function ScriptEditor({ tool, script, language, onSave, onClose }) {
-    const editorRef = useRef(null);
+interface ScriptEditorProps {
+    tool: string;
+    script: string;
+    language: string;
+    onSave: (tool: string, script: string, language: string) => void;
+    onClose: () => void;
+}
+
+interface SaveScriptMessage {
+    type: 'SAVE_SCRIPT';
+    tool: string;
+    script: string;
+    language: string;
+}
+
+export function ScriptEditor({
+    tool, 
+    script, 
+    language, 
+    onSave, 
+    onClose
+}: ScriptEditorProps) {
+    const editorRef = useRef<Window | null>(null);
 
     useEffect(() => {
         const editorWindow = window.open('', 'Script Editor', 'width=800,height=600');
@@ -68,9 +89,10 @@ export function ScriptEditor({ tool, script, language, onSave, onClose }) {
             `);
         }
 
-        const handleMessage = (event) => {
-            if (event.data.type === 'SAVE_SCRIPT') {
-                onSave(event.data.tool, event.data.script, event.data.language);
+        const handleMessage = (event: MessageEvent) => {
+            const data = event.data as SaveScriptMessage;
+            if (data.type === 'SAVE_SCRIPT') {
+                onSave(data.tool, data.script, data.language);
             }
         };
 
