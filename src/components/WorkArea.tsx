@@ -44,10 +44,12 @@ export function WorkArea({
     console.log('Raw rows:', rows);
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newTitle = e.target.value;
-        setLocalTitle(newTitle);
-        onUpdateWorkspaceTitle(newTitle);
-        onUpdateSystemMessage(`Workspace title updated to "${newTitle}"`);
+        setLocalTitle(e.target.value);
+    };
+
+    const handleTitleBlur = () => {
+        onUpdateWorkspaceTitle(localTitle);
+        onUpdateSystemMessage(`Workspace title updated to "${localTitle}"`);
     };
 
     return (
@@ -57,6 +59,7 @@ export function WorkArea({
                 className="workspace-title-input"
                 value={localTitle}
                 onChange={handleTitleChange}
+                onBlur={handleTitleBlur}
             />
             <ReactGrid
                 rows={rows}

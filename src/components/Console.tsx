@@ -19,8 +19,14 @@
 
 import React, { useRef, useEffect } from 'react';
 
-export function SystemMessageArea({ messages }) {
-    const messagesEndRef = useRef(null);
+type SystemMessage = string;
+
+interface SystemMessageAreaProps {
+    messages: SystemMessage[];
+}
+
+export function SystemMessageArea({ messages }: SystemMessageAreaProps): React.ReactElement {
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

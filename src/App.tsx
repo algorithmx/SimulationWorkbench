@@ -26,6 +26,31 @@ import { WorkArea } from './components/WorkArea';
 import useSystemMessage from './hooks/useSystemMessage';
 import { Table } from './utils/Table';
 import { Tool } from './utils/Tool';
+import { SystemMessageArea } from './components/Console';
+
+function genStartingSim(tools: Tool[]): SimulationProject {
+    const sim = new SimulationProject("Workspace")
+    .addTable(
+        new Table(
+            Date.now(),
+            [
+                [{ value: tools[0].name, colspan: 3 }],
+                ['P1', 'P2', 'P3'],
+                ['', '', ''],
+                ['', '', ''],
+            ]))
+    .addTable(
+        new Table(
+        Date.now(),
+            [
+                [{ value: tools[0].name, colspan: 2 }],
+                ['P4', 'P5'],
+                ['', ''],
+                ['', ''],
+            ])
+    );
+    return sim;
+}
 
 // The top-level function App() should NEVER be modified.
 function App() {
@@ -38,16 +63,7 @@ function App() {
     ]);
 
     // The implementations of simProj, setSimProj should NEVER be modified.
-    const [simProj, setSimProj] = useState<SimulationProject>(new SimulationProject("Workspace").addTable(
-        new Table(
-            Date.now(),
-            [
-                [{ value: tools[0].name, colspan: 3 }],
-                ['P1', 'P2', 'P3'],
-                ['', '', ''],
-                ['', '', ''],
-            ])
-    ));
+    const [simProj, setSimProj] = useState<SimulationProject>(genStartingSim(tools));
 
     // The implementations below should NEVER be modified.
     const { systemMessages, updateSystemMessage } = useSystemMessage('Welcome to the workspace');
@@ -78,12 +94,12 @@ function App() {
                     onUpdateSystemMessage={updateSystemMessage}
                 />
             </main>
-            {/* <footer>
+            <footer>
                 <div className="footer-content">
                     <SystemMessageArea messages={systemMessages} />
                     <div className="unused-area"></div>
                 </div>
-            </footer> */}
+            </footer>
         </div>
     );
 }
