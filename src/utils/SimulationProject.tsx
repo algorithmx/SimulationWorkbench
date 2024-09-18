@@ -18,18 +18,27 @@
 */
 
 import { Table, CellValue } from './Table';
-import { Column, Row, Cell, 
-    TextCell, NumberCell, ChevronCell, 
-    Id, DefaultCellTypes } from '@silevis/reactgrid';
+import { Tool } from './Tool';
+import {
+    Column, Row, Cell, CellChange, Id,
+    TextCell, NumberCell, DropdownCell
+} from '@silevis/reactgrid';
 
-export interface CustomCell extends Cell {
-    type: 'text' | 'header' | 'custom';
-    text?: string;
-    value?: number; // Add this line
-    colspan?: number;
-    nonEditable?: boolean;
-    customRenderer?: string;
-    props?: Record<string, unknown>;
+export type AllCellTypes = TextCell | NumberCell | DropdownCell;
+
+function toColumnName(i: number, iT: number): string {
+    return `tab_${iT}__col_${i}`
+}
+
+function toIndexes(colName: string) {
+    const col = Number(colName.split('__')[1].split('_')[1]);
+    const tab = Number(colName.split('__')[0].split('_')[1])
+    return { tab, col }
+}
+
+export interface CustomRow extends Omit<Row, 'cells'> {
+    rowId: Id;
+    cells: AllCellTypes[];
 }
 
 export class SimulationProject {
@@ -38,13 +47,15 @@ export class SimulationProject {
     private author: string;
     private version: string;
     private tables: Table[];
+    private tools: Tool[];
     private stages: any[]; // Consider creating a Stage type/interface
 
-    constructor(name: string, description: string = '', author: string = '', version: string = '0.1') {
+    constructor(name: string, tools: Tool[], description: string = '', author: string = '', version: string = '0.1') {
         this.name = name;
         this.description = description;
         this.author = author;
         this.version = version;
+        this.tools = [...tools];
         this.tables = [];
         this.stages = [];
     }
@@ -54,9 +65,59 @@ export class SimulationProject {
         return this;
     }
 
-    updateCell(tableId: number, rowIndex: number, colIndex: number, value: string): this {
-        this.tables.forEach((table: Table) => {
-            if (table.getId() === tableId) {
+    applyChanges(changes: CellChange<AllCellTypes>[]): this {
+        changes.forEach((change: CellChange<AllCellTypes>) => {
+            const { rowId, columnId, newCell, previousCell } = change;
+            const { tab, col } = toIndexes(columnId.toString());
+            const r = Number(rowId);
+            if (newCell.type === 'text') {
+                this.updateCell(tab, r, col, newCell.text);
+            } else if (newCell.type === 'number') {
+                this.updateCell(tab, r, col, newCell.value.toString());
+            } else if (newCell.type === 'dropdown' && previousCell.type === 'dropdown') {
+                if (previousCell.isOpen !== newCell.isOpen) {
+                    this.updateTopCellStatus(tab, r, col, newCell.isOpen ?? false);
+                    if (previousCell.selectedValue !== newCell.selectedValue) {
+                        this.updateTopCellValue(tab, r, col, newCell.selectedValue ?? '');
+                    }
+                }                
+            } else {
+                this.updateCell(tab, r, col, 'XXX');
+            }
+        });
+        return this;
+    }
+
+    updateTopCellValue(iT: number, rowIndex: number, colIndex: number, value: string): this {
+        this.tables.forEach((table: Table, index: number) => {
+            if (iT === index) {
+                table.updateTopCellValue(rowIndex, colIndex, value);
+            }
+        });
+        return this;
+    }
+
+    updateTopCellStatus(iT: number, rowIndex: number, colIndex: number, isOpen: boolean): this {
+        this.tables.forEach((table: Table, index: number) => {
+            if (iT === index) {
+                table.updateTopCellStatus(rowIndex, colIndex, isOpen);
+            }
+        });
+        return this;
+    }
+
+    toggleTopCellStatus(iT: number, rowIndex: number, colIndex: number): this {
+        this.tables.forEach((table: Table, index: number) => {
+            if (iT === index) {
+                table.toggleTopCellStatus(rowIndex, colIndex);
+            }
+        });
+        return this;
+    }
+
+    updateCell(iT: number, rowIndex: number, colIndex: number, value: string): this {
+        this.tables.forEach((table: Table, index: number) => {
+            if (iT === index) {
                 table.updateCell(rowIndex, colIndex, value);
             }
         });
@@ -157,45 +218,48 @@ export class SimulationProject {
                 reorderable: false,
                 resizable: false
             });
-            let columnIndex = 0;
-            this.tables.forEach((table) => {
-                const tableColumns = table.getData()[1].length;
-                columns.push(...Array(tableColumns).fill(0).map((_, i) => ({
-                    columnId: `col${columnIndex + i}`,
-                    width: 80,
+            this.tables.forEach((table, iT) => {
+                columns.push(...Array(table.getNumberOfColumns()).fill(0).map((_, i) => ({
+                    columnId: toColumnName(i, iT),
+                    width: 100,
                     reorderable: false,
                     resizable: true
                 })));
-                columnIndex += tableColumns;
             });
         }
-        console.log('Columns:', columns);
         return columns;
     }
 
-    getRows(totalColumns: number) : Row[] {
+    getRows(): CustomRow[] {
         const maxRows = Math.max(...this.tables.map(table => table.getNumberOfRows()));
-        console.log('Max Rows:', maxRows);
-        const nCol = totalColumns - 2;
-        const rows: Row[] = [
-            {
-                rowId: 0,
-                cells: [
-                    {type: 'text', text: 'Tool'},
-                    {type: 'text', text: ''},
-                    ...Array(nCol).fill({type: 'text', text: ''})
-                ]
-            }
+        const cells0: AllCellTypes[] = [
+            { type: 'number', value: 0, nonEditable: true },
+            { type: 'text', text: '', nonEditable: true }
+        ];
+        this.tables.forEach((table: Table) => {
+            const nc = table.getNumberOfColumns();
+            cells0.push({
+                type: 'dropdown',
+                isOpen: table.getToolStatus(),
+                selectedValue: table.getTableToolName(),
+                values: this.tools.map(
+                    (tool: Tool) => ({ label: tool.name, value: tool.name })
+                )
+            });
+            cells0.push(...Array(nc - 1).fill({ type: 'text', text: '' } as TextCell));
+        });
+        const rows: CustomRow[] = [
+            { rowId: 0, cells: cells0 }
         ];
         for (let rowIndex = 1; rowIndex < maxRows; rowIndex++) {
-            const cells: DefaultCellTypes[] = [
-                {type: 'number', value: rowIndex},
-                {type: 'text', text: ''}
+            const cells: AllCellTypes[] = [
+                { type: 'number', value: rowIndex, nonEditable: true },
+                { type: 'text', text: '', nonEditable: true }
             ];
             this.tables.forEach((table) => {
-                cells.push(...table.getRow(rowIndex).map(cellValue => ({ 
-                    type: 'text' as const, 
-                    text: cellValue?.toString() ?? '' 
+                cells.push(...table.getRow(rowIndex).map(cellValue => ({
+                    type: 'text' as const,
+                    text: cellValue?.toString() ?? ''
                 })));
             });
             rows.push({
@@ -203,30 +267,28 @@ export class SimulationProject {
                 cells: cells
             });
         }
-        console.log('Rows:', rows);
         return rows;
     }
 
     getColumnsAndRows(): {
         columns: Column[];
-        rows: Row[];
+        rows: CustomRow[];
     } {
         if (this.tables.length === 0) {
             return { columns: [], rows: [] };
         }
-
-        // Create columns
         const columns = this.getColumns();
-        // Create rows
-        const rows = this.getRows(columns.length);
-
+        if (columns.length === 0) {
+            return { columns: [], rows: [] };
+        }
+        const rows = this.getRows();
         return { columns, rows };
     }
 
     getTableIndexForColumn(columnIndex: number): number {
         let accumulatedColumns = 0;
         for (let i = 0; i < this.tables.length; i++) {
-            accumulatedColumns += this.tables[i].getData()[1].length;
+            accumulatedColumns += this.tables[i].getNumberOfColumns();
             if (columnIndex < accumulatedColumns) {
                 return i;
             }
@@ -235,7 +297,7 @@ export class SimulationProject {
     }
 
     getColumnOffsetForTable(tableIndex: number): number {
-        return this.tables.slice(0, tableIndex).reduce((acc, table) => acc + table.getData()[1].length, 0);
+        return this.tables.slice(0, tableIndex).reduce((acc, table) => acc + table.getNumberOfColumns(), 0);
     }
 
     private validateTableIndex(iT: number): void {

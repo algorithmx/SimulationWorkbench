@@ -24,54 +24,13 @@ import { SimulationProject } from './utils/SimulationProject';
 import { WorkArea } from './components/WorkArea';
 // import { SystemMessageArea } from './components/ColorChart';
 import useSystemMessage from './hooks/useSystemMessage';
-import { Table } from './utils/Table';
-import { Tool } from './utils/Tool';
 import { SystemMessageArea } from './components/Console';
-
-function genStartingSim(tools: Tool[]): SimulationProject {
-    const sim = new SimulationProject("Workspace")
-    .addTable(
-        new Table(
-            Date.now(),
-            [
-                [{ value: tools[0].name, colspan: 3 }],
-                ['P1', 'P2', 'P3'],
-                ['', '', ''],
-                ['', '', ''],
-            ]))
-    .addTable(
-        new Table(
-        Date.now(),
-            [
-                [{ value: tools[0].name, colspan: 2 }],
-                ['P4', 'P5'],
-                ['', ''],
-                ['', ''],
-            ])
-    );
-    return sim;
-}
 
 // The top-level function App() should NEVER be modified.
 function App() {
-
-    // The implementations of tools, setTools should NEVER be modified.
-    const [tools, setTools] = useState<Tool[]>([
-        new Tool('Tool A', '', '', 'python'),
-        new Tool('Tool B', '', '', 'python'),
-        new Tool('Tool C', '', '', 'python'),
-    ]);
-
-    // The implementations of simProj, setSimProj should NEVER be modified.
-    const [simProj, setSimProj] = useState<SimulationProject>(genStartingSim(tools));
-
+    const [data, setData] = useState<SimulationProject | null>(null);
     // The implementations below should NEVER be modified.
     const { systemMessages, updateSystemMessage } = useSystemMessage('Welcome to the workspace');
-
-    // The implementations below should NEVER be modified.
-    const updateWorkspaceTitle = (title: string) => {
-        setSimProj(simProj => simProj.setName(title));
-    };
 
     // The implementations below should NEVER be modified.
     return (
@@ -88,10 +47,8 @@ function App() {
             </header> */}
             <main>
                 <WorkArea
-                    simProj={simProj}
-                    setSimProj={setSimProj}
-                    onUpdateWorkspaceTitle={updateWorkspaceTitle}
-                    onUpdateSystemMessage={updateSystemMessage}
+                    onDataChange={(newData) => setData(newData)}
+                    onMessage={(newMessage) => updateSystemMessage(newMessage)}
                 />
             </main>
             <footer>

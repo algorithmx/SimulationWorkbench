@@ -18,39 +18,116 @@
 */
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { ReactGrid, Column, Row, CellChange, Id, HeaderCell, TextCell, 
-    ReactGridProps, CellTemplate, Compatible, Uncertain, CellTemplates } from '@silevis/reactgrid';
+import {
+    ReactGrid, Column, Row, CellChange, DefaultCellTypes,
+    Id, HeaderCell, TextCell, NumberCell, DropdownCell,
+    NumberCellTemplate, TextCellTemplate, DropdownCellTemplate,
+    ReactGridProps, CellTemplate, Compatible, Uncertain, CellTemplates
+} from '@silevis/reactgrid';
 import '@silevis/reactgrid/styles.css';
-import { SimulationProject, CustomCell } from '../utils/SimulationProject';
+import { SimulationProject, AllCellTypes, CustomRow } from '../utils/SimulationProject';
+import { Table, ToolCell } from '../utils/Table';
+import { Tool } from '../utils/Tool';
 
-interface WorkAreaProps {
-    simProj: SimulationProject;
-    setSimProj: (simProj: SimulationProject) => void;
-    onUpdateWorkspaceTitle: (title: string) => void;
-    onUpdateSystemMessage: (message: string) => void;
+export const AllCellTemplates: CellTemplates = {
+    'number': new NumberCellTemplate(),
+    'text': new TextCellTemplate(),
+    'dropdown': new DropdownCellTemplate(),
 }
 
-export function WorkArea({
-    simProj,
-    // @ts-ignore
-    setSimProj,
-    onUpdateWorkspaceTitle,
-    onUpdateSystemMessage
-}: WorkAreaProps) {
-    const [localTitle, setLocalTitle] = useState(simProj.getName());
+interface WorkAreaProps {
+    onDataChange: (newData: SimulationProject | null) => void;
+    onMessage: (message: string) => void;
+}
 
-    const { columns, rows } = simProj.getColumnsAndRows();
-    console.log('Raw columns:', columns);
-    console.log('Raw rows:', rows);
+function getCellChangeString(change: CellChange<AllCellTypes>): string {
+    const { rowId, columnId, newCell } = change;
+    if (newCell.type === 'text') {
+        return `(${rowId},${columnId})[${newCell.text}]`;
+    } else if (newCell.type === 'number') {
+        return `(${rowId},${columnId})[${newCell.value.toString()}]`;
+    } else if (newCell.type === 'dropdown') {
+        return `(${rowId},${columnId})[${newCell.selectedValue},${newCell.isOpen}]`;
+    } else {
+        return `(${rowId},${columnId})[??]`;
+    }
+}
+
+
+function genStartingSim(tools: Tool[]): SimulationProject {
+    const sim = new SimulationProject("Workspace", tools)
+        .addTable(
+            new Table(
+                Date.now(),
+                [
+                    [{ toolname: tools[0].name, colspan: 3, isOpen: false }],
+                    ['P1', 'P2', 'P3'],
+                    ['', '', ''],
+                    ['', '', ''],
+                ]))
+        .addTable(
+            new Table(
+                Date.now(),
+                [
+                    [{ toolname: tools[0].name, colspan: 2, isOpen: false }],
+                    ['P4', 'P5'],
+                    ['', ''],
+                    ['', ''],
+                ])
+        );
+    return sim;
+}
+
+
+export function WorkArea({
+    onDataChange,
+    onMessage
+}: WorkAreaProps) {
+
+    // The implementations of tools, setTools should NEVER be modified.
+    const [tools, setTools] = useState<Tool[]>([
+        new Tool('Tool A', '', '', 'python'),
+        new Tool('Tool B', '', '', 'python'),
+        new Tool('Tool C', '', '', 'python'),
+    ]);
+    // The implementations of simProj, setSimProj should NEVER be modified.
+    const [simProj, setSimProj] = useState<SimulationProject>(genStartingSim(tools));
+    const [localTitle, setLocalTitle] = useState(simProj.getName());
+    const [columns, setColumns] = useState<Column[]>(simProj.getColumns());
+    const [rows, setRows] = useState<CustomRow[]>(simProj.getRows());
+
+    // Use useEffect to notify parent about data change
+    useEffect(() => {
+        if (simProj) { onDataChange(simProj); }
+        if (localTitle) { onMessage(localTitle); }
+    }, [simProj, localTitle]);
+
+    const handleChanges = (changes: CellChange<DefaultCellTypes>[]) => {
+        setSimProj((prev: SimulationProject) => {
+            const updatedProj = prev.applyChanges(changes as CellChange<AllCellTypes>[]);
+            const { columns: newColumns, rows: newRows } = updatedProj.getColumnsAndRows();
+            setColumns(newColumns);
+            setRows(newRows);
+            return updatedProj;
+        });
+        onMessage(`Changes ${changes.map(
+            c => getCellChangeString(c as CellChange<AllCellTypes>)
+        ).join(', ')} applied.`);
+    };
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLocalTitle(e.target.value);
     };
 
     const handleTitleBlur = () => {
-        onUpdateWorkspaceTitle(localTitle);
-        onUpdateSystemMessage(`Workspace title updated to "${localTitle}"`);
+        setLocalTitle(localTitle);
+        onMessage(`Workspace title updated to "${localTitle}"`);
     };
+
+    if (!columns || columns.length === 0 || !rows || rows.length === 0) {
+        console.error('Invalid data for ReactGrid');
+        return <div>Error: Unable to render grid. Check console for details.</div>;
+    }
 
     return (
         <section className="work-area">
@@ -64,6 +141,11 @@ export function WorkArea({
             <ReactGrid
                 rows={rows}
                 columns={columns}
+                onCellsChanged={handleChanges}
+                customCellTemplates={AllCellTemplates}
+                enableRowSelection={false}
+                enableColumnSelection={false}
+                enableRangeSelection={false}
             />
         </section>
     );

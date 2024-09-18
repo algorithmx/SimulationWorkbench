@@ -17,14 +17,17 @@
  * Copyright (C) [2024] [Yunlong Lian]
 */
 
-export type CellValue = string | number | boolean | null | HeaderCell;
+
+export interface ToolCell {
+    toolname: string;
+    colspan: number;
+    isOpen: boolean;
+}
+
+export type CellValue = string | number | ToolCell;
 export type TableRow = CellValue[];
 export type TableData = TableRow[];
 
-export interface HeaderCell {
-    colspan: number;
-    [key: string]: string | number;
-}
 
 export class Table {
     private readonly id: number;
@@ -36,18 +39,37 @@ export class Table {
         this.id = id;
         this.data = data;
         this.nRows = data.length;
-        this.nCols = data.length > 0 ? data[0].length : 0;
+        this.nCols = data.length > 1 ? data[1].length : 0;
     }
 
     public getNumberOfRows(): number {
         return this.nRows;
     }
 
+    public getNumberOfColumns(): number {
+        return this.nCols;
+    }
+
+    public getToolStatus(): boolean {
+        if (this.data.length > 0 && this.data[0].length > 0) {
+            const firstCell = this.data[0][0] as ToolCell;
+            return firstCell.isOpen;
+        }
+        return false;
+    }
+    public getToolName(): string {
+        if (this.data.length > 0 && this.data[0].length > 0) {
+            const firstCell = this.data[0][0] as ToolCell;
+            return firstCell.toolname;
+        }
+        return '';
+    }
+
     public setEmptyColumn(nR: number, topCell: string = ''): this {
         this.nCols = 1;
         this.nRows = nR + 2;
         this.data = [
-            [{value: topCell, colspan: 1}],
+            [{toolname: topCell, colspan: 1, isOpen: false}],
             [''],
             ...Array(nR).fill(Array(this.nCols).fill(''))
         ];
@@ -77,7 +99,40 @@ export class Table {
         if (rowIndex < 0 || rowIndex >= this.nRows || colIndex < 0 || colIndex >= this.nCols) {
             throw new Error('Invalid row or column index');
         }
-        this.data[rowIndex][colIndex] = value;
+        if (rowIndex == 0 ) {
+            if (colIndex == 0) {
+                this.data[0][0] = {...this.data[0][0] as ToolCell, toolname: value, isOpen: false};
+            }
+        } else {
+            this.data[rowIndex][colIndex] = value;
+        }
+        return this;
+    }
+
+    public updateTopCellValue(rowIndex: number, colIndex: number, value: string): this {
+        if (rowIndex == 0 ) {
+            if (colIndex == 0) {
+                this.data[0][0] = {...this.data[0][0] as ToolCell, toolname: value};
+            }
+        }
+        return this;
+    }
+
+    public updateTopCellStatus(rowIndex: number, colIndex: number, isOpen: boolean): this {
+        if (rowIndex == 0 ) {
+            if (colIndex == 0) {
+                this.data[0][0] = {...this.data[0][0] as ToolCell, isOpen: isOpen};
+            }
+        }
+        return this;
+    }
+
+    public toggleTopCellStatus(rowIndex: number, colIndex: number): this {
+        if (rowIndex == 0 ) {
+            if (colIndex == 0) {
+                this.data[0][0] = {...this.data[0][0] as ToolCell, isOpen: !(this.data[0][0] as ToolCell).isOpen};
+            }
+        }
         return this;
     }
 
@@ -109,7 +164,7 @@ export class Table {
         }
         this.data = this.data.map((row, rowIndex): TableRow => {
             if (rowIndex === 0) {
-                return [{ ...row[0] as HeaderCell, colspan: (row[0] as HeaderCell).colspan + 1 }];
+                return [{ ...row[0] as ToolCell, colspan: (row[0] as ToolCell).colspan + 1 }];
             }
             const newCell = rowIndex === 1 ? defaultNameRow1 : '';
             return [...row.slice(0, columnIndex), newCell, ...row.slice(columnIndex)];
@@ -124,7 +179,7 @@ export class Table {
         }
         this.data = this.data.map((row, rowIndex): TableRow => {
             if (rowIndex === 0) {
-                return [{ ...row[0] as HeaderCell, colspan: (row[0] as HeaderCell).colspan - 1 }];
+                return [{ ...row[0] as ToolCell, colspan: (row[0] as ToolCell).colspan - 1 }];
             }
             return [...row.slice(0, columnIndex), ...row.slice(columnIndex + 1)];
         });
@@ -134,8 +189,8 @@ export class Table {
 
     public getTableToolName(): string {
         if (this.data.length > 0 && this.data[0].length > 0) {
-            const firstCell = this.data[0][0] as HeaderCell;
-            return firstCell.value as string || 'Unknown';
+            const firstCell = this.data[0][0] as ToolCell;
+            return firstCell.toolname as string || 'Unknown';
         }
         return 'Unknown';
     }
@@ -163,12 +218,16 @@ export class Table {
         return groups;
     }
 
-    public static createNewTable(toolOptions: Record<string, unknown>, data: TableData, onUpdateSystemMessage: (message: string) => void): Table {
+    public static createNewTable(
+        toolOptions: Record<string, unknown>, 
+        data: TableData, 
+        onUpdateSystemMessage: (message: string) => void
+    ): Table {
         const tmp_id = Date.now();
         const toolName = Object.keys(toolOptions)[0];
         onUpdateSystemMessage(`Create a new table [${toolName}] (id=${tmp_id})`);
         return new Table(tmp_id, [
-            [{ value: toolName, colspan: 1 }],
+            [{ toolname: toolName, colspan: 1, isOpen: false }],
             ['PNew'],
             ...data.slice(2).map(row => row.map(() => ''))
         ]);

@@ -34,7 +34,6 @@ export function useToolFlowTables({
     tools
 }: UseToolFlowTablesProps) {
     const handleCellChange = (tableId: number, rowIndex: number, colIndex: number, value: string): void => {
-        console.log(`tableId ${tableId}, rowIndex ${rowIndex}, colIndex ${colIndex}, value ${value}`);
         setTables(prev => prev.updateCell(tableId, rowIndex, colIndex, value));
     };
 
