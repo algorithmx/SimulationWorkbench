@@ -60,6 +60,32 @@ export class SimulationProject {
         this.stages = [];
     }
 
+    updateFromParsedData(
+        simProjData: {
+            name: string,
+            description: string,
+            author: string,
+            version: string,
+            tables: Table[],
+            tools: Tool[],
+            stages: string[]
+        }
+    ): this {
+        this.name = simProjData.name;
+        this.description = simProjData.description;
+        this.author = simProjData.author;
+        this.version = simProjData.version;
+        this.tools = simProjData.tools;
+        this.tables = simProjData.tables.map(
+            (tableData: any) => new Table(tableData.id, tableData.data));
+        return this;
+    }
+
+    updateTools(tools: Tool[]): this {
+        this.tools = tools;
+        return this;
+    }
+    
     setName(name: string): this {
         this.name = name;
         return this;
@@ -131,6 +157,11 @@ export class SimulationProject {
 
     addTable(table: Table): this {
         this.tables.push(table);
+        return this;
+    }
+
+    resetTables(table: Table) : this {
+        this.tables = [new Table(Date.now()).resetTables(table)];
         return this;
     }
 
@@ -208,13 +239,13 @@ export class SimulationProject {
         if (this.tables.length > 0) {
             columns.push({
                 columnId: 'Tool',
-                width: 60,
+                width: 40,
                 reorderable: false,
                 resizable: false
             });
             columns.push({
-                columnId: '',
-                width: 20,
+                columnId: 'Run',
+                width: 10,
                 reorderable: false,
                 resizable: false
             });
@@ -233,7 +264,7 @@ export class SimulationProject {
     getRows(): CustomRow[] {
         const maxRows = Math.max(...this.tables.map(table => table.getNumberOfRows()));
         const cells0: AllCellTypes[] = [
-            { type: 'number', value: 0, nonEditable: true },
+            { type: 'text', text: 'Tool', nonEditable: true },
             { type: 'text', text: '', nonEditable: true }
         ];
         this.tables.forEach((table: Table) => {

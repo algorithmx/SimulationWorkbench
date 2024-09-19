@@ -18,19 +18,19 @@
 */
 
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { createParameterGrid, ParamInputRow } from '../utils/ParameterGridUtils';
-import 'highlight.js/styles/atom-one-dark.css';
+// import 'highlight.js/styles/atom-one-dark.css';
 import { ScriptEditor } from './ScriptEditor';
 import { Tool } from '../utils/Tool';
 import { SimulationProject } from '../utils/SimulationProject';
 
-interface MenuBarProps {
-    tables: SimulationProject; 
+export interface MenuBarProps {
+    simProj: SimulationProject;
     tools: Tool[];
-    onUpdateTables: (tables: any) => void;
+    onUpdateSimProj: (prev: SimulationProject) => void;
     onUpdateTools: (tools: Tool[]) => void;
-    onUpdateWorkspaceTitle: (title: string) => void;
+    onUpdateWorkspaceTitle: (newTitle: string) => void;
     onUpdateSystemMessage: (message: string) => void;
 }
 
@@ -40,9 +40,9 @@ interface ParamValue {
 }
 
 export function MenuBar({
-    tables,
+    simProj,
     tools,
-    onUpdateTables,
+    onUpdateSimProj,
     onUpdateTools,
     onUpdateWorkspaceTitle,
     onUpdateSystemMessage
@@ -52,20 +52,19 @@ export function MenuBar({
     const [newTool, setNewTool] = useState<Tool>(new Tool('', '', '', 'python'));
 
     const exportStateToJSON = useCallback(() => {
-        const state = { tools, tables, workspaceTitle: tables.getName() };
-        const jsonString = JSON.stringify(state, null, 2);
+        const jsonString = JSON.stringify(simProj, null, 2);
         const blob = new Blob([jsonString], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         // Use workspaceTitle for the filename, fallback to 'workspace' if empty
-        const filename = (tables.getName().trim() || 'workspace').replace(/\s+/g, '_').toLowerCase();
+        const filename = (simProj.getName().trim() || 'workspace').replace(/\s+/g, '_').toLowerCase();
         a.download = `${filename}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-    }, [tables, tools, tables.getName()]);
+    }, [simProj, tools, simProj.getName()]);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,26 +74,26 @@ export function MenuBar({
 
     const importStateFromJSON = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const importedState = JSON.parse(e.target?.result as string);
-                    if (importedState.tools && importedState.tables && importedState.workspaceTitle) {
-                        onUpdateTools(importedState.tools);
-                        onUpdateTables(importedState.tables);
-                        onUpdateWorkspaceTitle(importedState.workspaceTitle);
-                        onUpdateSystemMessage(`Workspace "${importedState.workspaceTitle}" loaded successfully from file "${file.name}"!`);
-                    } else {
-                        throw new Error('Invalid JSON structure');
-                    }
-                } catch (error: any) {
-                    alert('Error parsing JSON: ' + error.message);
-                }
-            };
-            reader.readAsText(file);
+        if (!file) {
+          return;
         }
-    }, []);
+        const reader = new FileReader();
+        reader.onload = (e: ProgressEvent<FileReader>) => {
+            try {
+                const importedSimProj = JSON.parse(e.target?.result as string);
+                if (!importedSimProj.tools || !importedSimProj.tables || !importedSimProj.name) {
+                    throw new Error('Invalid JSON structure');
+                }
+                onUpdateTools(tools);
+                onUpdateSimProj(simProj.updateFromParsedData(importedSimProj));
+                onUpdateWorkspaceTitle(importedSimProj.name);
+                onUpdateSystemMessage(`Workspace "${importedSimProj.name}" loaded successfully from file "${file.name}"!`);
+            } catch (error) {
+                onUpdateSystemMessage(`Error parsing JSON: ${(error as Error).message}`);
+            }
+        };
+        reader.readAsText(file);
+    }, [onUpdateTools, onUpdateSimProj, onUpdateWorkspaceTitle, onUpdateSystemMessage]);
 
     const handleTogglePopup = () => {
         setIsPopupOpen(!isPopupOpen);
@@ -111,14 +110,10 @@ export function MenuBar({
     };
 
     const handleSaveChanges = () => {
-        const updatedTools = Object.values(editableOptions).filter(tool => 
-            tool.name.trim() !== '' && tool.description.trim() !== ''
-        );
-
-        if (newTool.name.trim() !== '' && newTool.description.trim() !== '') {
+        const updatedTools = tools.map(tool => editableOptions[tool.name] || tool);
+        if (newTool.name.trim() !== '') {
             updatedTools.push(newTool);
         }
-
         onUpdateTools(updatedTools);
         setIsPopupOpen(false);
         setCurrentEditingTool(null);
@@ -157,9 +152,9 @@ export function MenuBar({
     };
 
     const handleCreateParamGrid = () => {
-        const newTable = createParameterGrid(localParamValues, Object.keys(tools)[0], tables.getNumberOfRows() + 1);
+        const newTable = createParameterGrid(localParamValues, tools, Date.now());
         if (newTable) {
-            onUpdateTables(newTable);
+            onUpdateSimProj(simProj.resetTables(newTable));
             setIsParamGridPopupOpen(false);
         }
     };
@@ -168,7 +163,7 @@ export function MenuBar({
         <>
             <nav className="menu-bar">
                 <button onClick={handleToggleParamGridPopup}>Create param grid</button>
-                <button>Button 1</button>
+                {/* <button>Button 1</button> */}
                 <button onClick={exportStateToJSON}>Export State</button>
                 <button onClick={handleImportClick}>Import State</button>
                 <input

@@ -28,23 +28,15 @@ import { SystemMessageArea } from './components/Console';
 
 // The top-level function App() should NEVER be modified.
 function App() {
+    // The implementations below should NEVER be modified.
     const [data, setData] = useState<SimulationProject | null>(null);
+
     // The implementations below should NEVER be modified.
     const { systemMessages, updateSystemMessage } = useSystemMessage('Welcome to the workspace');
 
     // The implementations below should NEVER be modified.
     return (
         <div className="app">
-            {/* <header>
-                <MenuBar
-                    simProj={simProj}
-                    tools={tools}
-                    onUpdateTables={updateTables}
-                    onUpdateTools={updateTools}
-                    onUpdateWorkspaceTitle={updateWorkspaceTitle}
-                    onUpdateSystemMessage={updateSystemMessage}
-                />
-            </header> */}
             <main>
                 <WorkArea
                     onDataChange={(newData) => setData(newData)}

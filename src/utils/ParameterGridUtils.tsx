@@ -17,41 +17,56 @@
  * Copyright (C) [2024] [Yunlong Lian]
 */
 
+interface Param {
+    name: string;
+    value: string;
+}
 
-import React from 'react';
+interface ParameterGrid {
+    id: string;
+    data: (string | { value: string; colspan: number })[][];
+}
 
-export function createParameterGrid(paramValues, defaultToolName, newTableId) {
-    const validParams = paramValues.filter(param => param.name.trim() !== '' && param.value.trim() !== '');
-    
+import { Table, ToolCell, TableData } from './Table';
+import { Tool } from './Tool'
+
+export function createParameterGrid(
+    paramValues: Param[], 
+    tools: Tool[], 
+    newTableId: number
+): Table | null {
+    const validParams = paramValues.filter(param => param.name.trim() !== '' && param.value.trim() !== '');    
     if (validParams.length === 0) {
         alert('Please add at least one parameter with both name and value.');
         return null;
     }
-
-    const gridData = [
-        [{ value: defaultToolName, colspan: validParams.length + 1 }],
-        [...validParams.map(param => param.name), ''],
+    const gridData: TableData = [
+        [{  toolname: tools[0].name,
+            colspan: validParams.length + 1, 
+            isOpen: false} as ToolCell],
+        [...validParams.map(param => param.name), 'Result'],
         ...generateCombinations(validParams).map(row => [...row, '']),
     ];
-
-    return {
-        id: newTableId,
-        data: gridData
-    };
+    return new Table(newTableId, gridData);
 }
 
-export function generateCombinations(paramValues) {
+export function generateCombinations(paramValues: Param[]): string[][] {
     const values = paramValues.map(param => param.value.split(',').map(s => s.trim()));
     return cartesianProduct(values);
 }
 
-function cartesianProduct(arrays) {
+function cartesianProduct(arrays: string[][]): string[][] {
     return arrays.reduce((acc, array) => (
         acc.flatMap(x => array.map(y => [...x, y]))
-    ), [[]]);
+    ), [[]] as string[][]);
 }
 
-export function ParamInputRow({ param, onChange }) {
+interface ParamInputRowProps {
+    param: Param;
+    onChange: (field: 'name' | 'value', value: string) => void;
+}
+
+export function ParamInputRow({ param, onChange }: ParamInputRowProps): JSX.Element {
     return (
         <div className="param-input-row">
             <input

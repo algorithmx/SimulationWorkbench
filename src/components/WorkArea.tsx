@@ -28,7 +28,7 @@ import '@silevis/reactgrid/styles.css';
 import { SimulationProject, AllCellTypes, CustomRow } from '../utils/SimulationProject';
 import { Table, ToolCell } from '../utils/Table';
 import { Tool } from '../utils/Tool';
-
+import { MenuBar, MenuBarProps } from './MenuBar'; // Update this import
 export const AllCellTemplates: CellTemplates = {
     'number': new NumberCellTemplate(),
     'text': new TextCellTemplate(),
@@ -55,27 +55,26 @@ function getCellChangeString(change: CellChange<AllCellTypes>): string {
 
 
 function genStartingSim(tools: Tool[]): SimulationProject {
-    const sim = new SimulationProject("Workspace", tools)
-        .addTable(
-            new Table(
-                Date.now(),
-                [
-                    [{ toolname: tools[0].name, colspan: 3, isOpen: false }],
-                    ['P1', 'P2', 'P3'],
-                    ['', '', ''],
-                    ['', '', ''],
-                ]))
-        .addTable(
-            new Table(
-                Date.now(),
-                [
-                    [{ toolname: tools[0].name, colspan: 2, isOpen: false }],
-                    ['P4', 'P5'],
-                    ['', ''],
-                    ['', ''],
-                ])
-        );
-    return sim;
+    return new SimulationProject("Workspace", tools)
+            .addTable(
+                new Table(
+                    Date.now(),
+                    [
+                        [{ toolname: tools[0].name, colspan: 3, isOpen: false }],
+                        ['P1', 'P2', 'P3'],
+                        ['', '', ''],
+                        ['', '', ''],
+                    ]))
+            .addTable(
+                new Table(
+                    Date.now(),
+                    [
+                        [{ toolname: tools[0].name, colspan: 2, isOpen: false }],
+                        ['P4', 'P5'],
+                        ['', ''],
+                        ['', ''],
+                    ])
+            );
 }
 
 
@@ -98,9 +97,13 @@ export function WorkArea({
 
     // Use useEffect to notify parent about data change
     useEffect(() => {
-        if (simProj) { onDataChange(simProj); }
-        if (localTitle) { onMessage(localTitle); }
-    }, [simProj, localTitle]);
+        if (simProj) {
+            const { columns: newColumns, rows: newRows } = simProj.getColumnsAndRows();
+            setColumns(newColumns);
+            setRows(newRows);
+            onDataChange(simProj);
+        }
+    }, [simProj]);
 
     const handleChanges = (changes: CellChange<DefaultCellTypes>[]) => {
         setSimProj((prev: SimulationProject) => {
@@ -110,9 +113,9 @@ export function WorkArea({
             setRows(newRows);
             return updatedProj;
         });
-        onMessage(`Changes ${changes.map(
-            c => getCellChangeString(c as CellChange<AllCellTypes>)
-        ).join(', ')} applied.`);
+        // onMessage(`Changes ${changes.map(
+        //     c => getCellChangeString(c as CellChange<AllCellTypes>)
+        // ).join(', ')} applied.`);
     };
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,8 +132,30 @@ export function WorkArea({
         return <div>Error: Unable to render grid. Check console for details.</div>;
     }
 
+    const handleSimProjUpdate = useCallback((updatedSimProj: SimulationProject) => {
+        setSimProj(_ => {
+            const { columns: newColumns, rows: newRows } = updatedSimProj.getColumnsAndRows();
+            setColumns(newColumns);
+            setRows(newRows);
+            return updatedSimProj;
+        });
+    }, []);
+
+    const handleToolsChange = useCallback((updatedTools: Tool[]) => {
+        setTools(updatedTools);
+        setSimProj((prev: SimulationProject) => prev.updateTools(updatedTools));
+    }, []);
+
     return (
         <section className="work-area">
+            <MenuBar
+                simProj={simProj}
+                tools={tools}
+                onUpdateSimProj={handleSimProjUpdate}
+                onUpdateTools={handleToolsChange}
+                onUpdateWorkspaceTitle={setLocalTitle}
+                onUpdateSystemMessage={onMessage}
+            />
             <input
                 type="text"
                 className="workspace-title-input"

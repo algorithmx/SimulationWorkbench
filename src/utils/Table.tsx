@@ -195,6 +195,13 @@ export class Table {
         return 'Unknown';
     }
 
+    public resetTables(newTable: Table): this {
+        this.data = newTable.getData();
+        this.nRows = newTable.getNumberOfRows();
+        this.nCols = newTable.getNumberOfColumns();
+        return this;
+    }
+
     public calculateCellGroups(): { start: number; end: number; value: CellValue; col: number }[] {
         const groups: { start: number; end: number; value: CellValue; col: number }[] = [];
         const valueRows = this.data.slice(2);
