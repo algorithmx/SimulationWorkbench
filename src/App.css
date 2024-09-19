@@ -699,7 +699,7 @@ main {
 }
 
 .system-message-area {
-  width: 50%;
+  width: calc(50% - 5px); /* Adjust width to account for the gap */
   height: 100%;
   background-color: #000;
   display: flex;
@@ -714,7 +714,7 @@ main {
 }
 
 .system-message {
-  color: #00ff00;
+  color: #00e1ff;
   font-size: 14px;
   margin-bottom: 5px;
   white-space: pre-wrap;
@@ -729,52 +729,76 @@ footer {
 .footer-content {
   display: flex;
   height: 100%;
+  gap: 10px; /* This adds space between flex items */
 }
 
 
-.system-message-area {
-  width: 50%;
+.python-console {
+  width: calc(50% - 5px); /* Adjust width to account for the gap */
   height: 100%;
+  color: #00ff1a;
   background-color: #000;
+  padding: 10px;
+  margin-bottom: 5px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 10px;
   box-sizing: border-box;
   overflow-y: auto;
   font-family: 'Courier New', Courier, monospace;
   scroll-behavior: smooth;
-}
-
-.python-console {
-  width: 50%;
-  height: 100%;
-  background-color: #000;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding: 10px;
-  box-sizing: border-box;
-  overflow-y: auto;
-  font-family: 'Courier New', Courier, monospace;
-  color: #00ff00;
-}
-
-.python-console input {
-  width: calc(100% - 30px);
-  background-color: transparent;
-  border: none;
-  outline: none;
-  font-family: inherit;
-  color: inherit;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .python-console-history {
   width: 100%;
+  flex-grow: 1;
   overflow-y: auto;
+  font-size: 14px;
+  margin-bottom: none;
+  margin: none;
+  font-family: 'Courier New', Courier, monospace;
+  display: flex;
+  flex-direction: column;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
+
+.python-console-input {
+  background-color: #000;
+  color: #00ff00;
+  font-size: 14px;
+  margin-bottom: none;
+  margin: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Courier New', Courier, monospace;
+  width: 100%;
+}
+
+.python-console-input input {
+  width: 85%;
+  background-color: #000;
+  color: #00ff00;
+  font-size: 14px;
+  border: none;
+  padding: none;
+  margin: none;
+  margin-bottom: none;
+  font-family: 'Courier New', Courier, monospace;
+  display: 'flex';
+  align-items: 'left';
+}
+
+.python-console-input input:focus {
+  outline: none;
+  padding: none;
+  margin: none;
+  border: none;
+}
+
 
 .unused-area {
   width: 50%;

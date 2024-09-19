@@ -40,14 +40,14 @@ function App() {
         <div className="app">
             <main>
                 <WorkArea
-                    onDataChange={(newData) => setData(newData)}
-                    onMessage={(newMessage) => updateSystemMessage(newMessage)}
+                    onDataChange={setData}
+                    onMessage={updateSystemMessage}
                 />
             </main>
             <footer>
                 <div className="footer-content">
                     <SystemMessageArea messages={systemMessages} />
-                    <PythonConsole />
+                    <PythonConsole onMessage={updateSystemMessage}/>
                 </div>
             </footer>
         </div>
