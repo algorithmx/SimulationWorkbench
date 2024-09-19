@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
+    "@pyscript/core": "^0.5.12",
     "@silevis/reactgrid": "^4.1.8",
     "loadash": "^1.0.0",
     "monaco-editor": "^0.51.0",

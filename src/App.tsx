@@ -25,6 +25,7 @@ import { WorkArea } from './components/WorkArea';
 // import { SystemMessageArea } from './components/ColorChart';
 import useSystemMessage from './hooks/useSystemMessage';
 import { SystemMessageArea } from './components/Console';
+import PythonConsole from './components/PythonConsole';
 
 // The top-level function App() should NEVER be modified.
 function App() {
@@ -46,7 +47,7 @@ function App() {
             <footer>
                 <div className="footer-content">
                     <SystemMessageArea messages={systemMessages} />
-                    <div className="unused-area"></div>
+                    <PythonConsole />
                 </div>
             </footer>
         </div>
