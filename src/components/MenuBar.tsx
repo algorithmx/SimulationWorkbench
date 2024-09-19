@@ -54,6 +54,7 @@ export function MenuBar({
     const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
     const [editableOptions, setEditableOptions] = useState<{ [key: string]: Tool }>({});
     const [newTool, setNewTool] = useState<Tool>(new Tool('', '', '', 'python'));
+    const [currentEditingTool, setCurrentEditingTool] = useState<Tool | null>(null);
 
     const exportStateToJSON = useCallback(() => {
         const jsonString = JSON.stringify(simProj, null, 2);
@@ -108,13 +109,6 @@ export function MenuBar({
         setCurrentEditingTool(null); // Add this line to close the "Edit Script" popup when toggling the main popup
     };
 
-    const handleOptionChange = (tool: Tool, field: string, value: string) => {
-        setEditableOptions(prevOptions => ({
-            ...prevOptions,
-            [tool.name]: { ...tool, [field]: value }
-        }));
-    };
-
     const handleSaveChanges = () => {
         const updatedTools = tools.map(tool => editableOptions[tool.name] || tool);
         if (newTool.name.trim() !== '') {
@@ -122,22 +116,30 @@ export function MenuBar({
         }
         onUpdateTools(updatedTools);
         onUpdateSimProj(simProj.updateTools(updatedTools));
-        
         setIsPopupOpen(false);
         setCurrentEditingTool(null);
     };
-
-    const [currentEditingTool, setCurrentEditingTool] = useState<Tool | null>(null);
 
     const handleEditScript = useCallback((tool: Tool) => {
         setCurrentEditingTool(tool);
     }, []);
 
-    const handleSaveScript = useCallback((tool: Tool, script: string, language: string) => {
-        const updatedTool = { ...tool, scripts: script, language };
-        onUpdateTools(tools.map(t => t.name === tool.name ? updatedTool : t));
-        setCurrentEditingTool(null);
-    }, [onUpdateTools, tools]);
+    const handleSaveScript = useCallback((toolName: string, newScript: string, newLanguage: string) => {
+        if (currentEditingTool) {
+            if(currentEditingTool.name === toolName) {
+                currentEditingTool.setScript(newScript);
+                currentEditingTool.setLanguage(newLanguage);
+                const updatedTools = tools.map(tool => tool.name === toolName ? currentEditingTool : tool);
+                onUpdateTools(updatedTools);
+                onUpdateSystemMessage(`Script updated for tool "${toolName}"`);   
+                setCurrentEditingTool(null);
+            } else {
+                console.error(`Tool name does not match: ${toolName} !== ${currentEditingTool.name}`);
+            }
+        } else {
+            onUpdateSystemMessage(`handleSaveScript: No tool selected for editing.`);
+        }
+    }, [onUpdateTools, onUpdateSystemMessage]);
 
     const [isParamGridPopupOpen, setIsParamGridPopupOpen] = useState(false);
     const [localParamValues, setLocalParamValues] = useState<ParamValue[]>([]);
@@ -192,12 +194,12 @@ export function MenuBar({
                                 <input
                                     type="text"
                                     value={tool.name}
-                                    onChange={(e) => handleOptionChange(tool, 'name', e.target.value)}
+                                    onChange={(e) => tool.setName(e.target.value)}
                                 />
                                 <input
                                     type="text"
                                     value={tool.description}
-                                    onChange={(e) => handleOptionChange(tool, 'description', e.target.value)}
+                                    onChange={(e) => tool.setDescription(e.target.value)}
                                 />
                                 <button onClick={() => handleEditScript(tool)}>Edit Script</button>
                             </div>
@@ -205,13 +207,13 @@ export function MenuBar({
                         <input
                             type="text"
                             value={newTool.name}
-                            onChange={(e) => setNewTool({ ...newTool, name: e.target.value })}
+                            onChange={(e) => setNewTool(newTool.setName(e.target.value))}
                             placeholder="Add new tool name"
                         />
                         <input
                             type="text"
                             value={newTool.description}
-                            onChange={(e) => setNewTool({ ...newTool, description: e.target.value })}
+                            onChange={(e) => setNewTool(newTool.setDescription(e.target.value))}
                             placeholder="Add new tool description"
                         />
                         <div className="popup-buttons">
@@ -245,8 +247,7 @@ export function MenuBar({
                     tool={currentEditingTool.name}
                     script={currentEditingTool.scripts}
                     language={currentEditingTool.language}
-                    onSave={(script: string, language: string) => handleSaveScript(currentEditingTool, script, language)}
-                    onClose={() => setCurrentEditingTool(null)}
+                    onSave={handleSaveScript}
                 />
             )}
         </>

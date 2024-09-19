@@ -58,25 +58,25 @@ function getCellChangeString(change: CellChange<AllCellTypes>): string {
 
 function genStartingSim(tools: Tool[]): SimulationProject {
     return new SimulationProject("Workspace", tools)
-            .addTable(
-                new Table(
-                    Date.now(),
-                    [
-                        [{ toolname: tools[0].name, colspan: 3, isOpen: false }],
-                        ['P1', 'P2', 'P3'],
-                        ['', '', ''],
-                        ['', '', ''],
-                    ]))
-            .addTable(
-                new Table(
-                    Date.now(),
-                    [
-                        [{ toolname: tools[0].name, colspan: 2, isOpen: false }],
-                        ['P4', 'P5'],
-                        ['', ''],
-                        ['', ''],
-                    ])
-            );
+        .addTable(
+            new Table(
+                Date.now(),
+                [
+                    [{ toolname: tools[0].name, colspan: 3, isOpen: false }],
+                    ['P1', 'P2', 'P3'],
+                    ['', '', ''],
+                    ['', '', ''],
+                ]))
+        .addTable(
+            new Table(
+                Date.now(),
+                [
+                    [{ toolname: tools[0].name, colspan: 2, isOpen: false }],
+                    ['P4', 'P5'],
+                    ['', ''],
+                    ['', ''],
+                ])
+        );
 }
 
 
@@ -133,16 +133,16 @@ export function WorkArea({
     const handleAuthorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLocalAuthor(e.target.value);
     };
-    
+
     const handleAuthorBlur = () => {
         setSimProj(prev => prev.setAuthor(localAuthor));
         onMessage(`Workspace author updated to "${localAuthor}"`);
     };
-    
+
     const handleVersionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLocalVersion(e.target.value);
     };
-    
+
     const handleVersionBlur = () => {
         setSimProj(prev => prev.setVersion(localVersion));
         onMessage(`Workspace version updated to "${localVersion}"`);
@@ -166,6 +166,19 @@ export function WorkArea({
         setTools(updatedTools);
         setSimProj((prev: SimulationProject) => prev.updateTools(updatedTools));
     }, []);
+
+    const handleSaveScript = useCallback((toolName: string, newScript: string, newLanguage: string) => {
+        setSimProj((prevSimProj) => {
+            const updatedTools = prevSimProj.getTools().map((tool: Tool) =>
+                tool.name === toolName ? new Tool(tool.name, tool.description, newScript, newLanguage) : tool
+            );
+            return prevSimProj.updateTools(updatedTools);
+        });
+        setTools((prevTools) => prevTools.map(tool =>
+            tool.name === toolName ? new Tool(tool.name, tool.description, newScript, newLanguage) : tool
+        ));
+        onMessage(`Script updated for tool "${toolName}"`);
+    }, [setSimProj, setTools, onMessage]);
 
     return (
         <section className="work-area">

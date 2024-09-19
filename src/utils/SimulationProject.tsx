@@ -85,6 +85,15 @@ export class SimulationProject {
         this.tools = tools;
         return this;
     }
+
+    updateToolScript(toolName: string, script: string, language: string): this {
+        const tool = this.tools.find(t => t.getName() === toolName);
+        if (tool) {
+            tool.setScript(script);
+            tool.setLanguage(language);
+        }
+        return this;
+    }
     
     setName(name: string): this {
         this.name = name;
@@ -188,6 +197,10 @@ export class SimulationProject {
     setAuthor(author: string): this {
         this.author = author;
         return this;
+    }
+
+    getTools(): Tool[] {
+        return this.tools;
     }
 
     getVersion(): string {
