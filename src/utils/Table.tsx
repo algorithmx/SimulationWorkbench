@@ -110,28 +110,22 @@ export class Table {
     }
 
     public updateTopCellValue(rowIndex: number, colIndex: number, value: string): this {
-        if (rowIndex == 0 ) {
-            if (colIndex == 0) {
-                this.data[0][0] = {...this.data[0][0] as ToolCell, toolname: value};
-            }
+        if (rowIndex == 0 && colIndex == 0) {
+              this.data[0][0] = {...this.data[0][0] as ToolCell, toolname: value};
         }
         return this;
     }
 
     public updateTopCellStatus(rowIndex: number, colIndex: number, isOpen: boolean): this {
-        if (rowIndex == 0 ) {
-            if (colIndex == 0) {
-                this.data[0][0] = {...this.data[0][0] as ToolCell, isOpen: isOpen};
-            }
+        if (rowIndex == 0 && colIndex == 0) {
+              this.data[0][0] = {...this.data[0][0] as ToolCell, isOpen: isOpen};
         }
         return this;
     }
 
     public toggleTopCellStatus(rowIndex: number, colIndex: number): this {
-        if (rowIndex == 0 ) {
-            if (colIndex == 0) {
-                this.data[0][0] = {...this.data[0][0] as ToolCell, isOpen: !(this.data[0][0] as ToolCell).isOpen};
-            }
+        if (rowIndex == 0 && colIndex == 0) {
+              this.data[0][0] = {...this.data[0][0] as ToolCell, isOpen: !(this.data[0][0] as ToolCell).isOpen};
         }
         return this;
     }

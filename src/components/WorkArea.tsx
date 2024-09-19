@@ -28,7 +28,9 @@ import '@silevis/reactgrid/styles.css';
 import { SimulationProject, AllCellTypes, CustomRow } from '../utils/SimulationProject';
 import { Table, ToolCell } from '../utils/Table';
 import { Tool } from '../utils/Tool';
-import { MenuBar, MenuBarProps } from './MenuBar'; // Update this import
+import { MenuBar, MenuBarProps } from './MenuBar';
+const MemoizedMenuBar = React.memo(MenuBar);
+
 export const AllCellTemplates: CellTemplates = {
     'number': new NumberCellTemplate(),
     'text': new TextCellTemplate(),
@@ -92,6 +94,8 @@ export function WorkArea({
     // The implementations of simProj, setSimProj should NEVER be modified.
     const [simProj, setSimProj] = useState<SimulationProject>(genStartingSim(tools));
     const [localTitle, setLocalTitle] = useState(simProj.getName());
+    const [localAuthor, setLocalAuthor] = useState(simProj.getAuthor());
+    const [localVersion, setLocalVersion] = useState(simProj.getVersion());
     const [columns, setColumns] = useState<Column[]>(simProj.getColumns());
     const [rows, setRows] = useState<CustomRow[]>(simProj.getRows());
 
@@ -126,6 +130,23 @@ export function WorkArea({
         setLocalTitle(localTitle);
         onMessage(`Workspace title updated to "${localTitle}"`);
     };
+    const handleAuthorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLocalAuthor(e.target.value);
+    };
+    
+    const handleAuthorBlur = () => {
+        setSimProj(prev => prev.setAuthor(localAuthor));
+        onMessage(`Workspace author updated to "${localAuthor}"`);
+    };
+    
+    const handleVersionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLocalVersion(e.target.value);
+    };
+    
+    const handleVersionBlur = () => {
+        setSimProj(prev => prev.setVersion(localVersion));
+        onMessage(`Workspace version updated to "${localVersion}"`);
+    };
 
     if (!columns || columns.length === 0 || !rows || rows.length === 0) {
         console.error('Invalid data for ReactGrid');
@@ -148,12 +169,14 @@ export function WorkArea({
 
     return (
         <section className="work-area">
-            <MenuBar
+            <MemoizedMenuBar
                 simProj={simProj}
                 tools={tools}
                 onUpdateSimProj={handleSimProjUpdate}
                 onUpdateTools={handleToolsChange}
                 onUpdateWorkspaceTitle={setLocalTitle}
+                onUpdateWorkspaceAuthor={setLocalAuthor}
+                onUpdateWorkspaceVersion={setLocalVersion}
                 onUpdateSystemMessage={onMessage}
             />
             <input
@@ -163,6 +186,21 @@ export function WorkArea({
                 onChange={handleTitleChange}
                 onBlur={handleTitleBlur}
             />
+            <div className="workspace-info">
+                <span>Author: </span><input
+                    type="text"
+                    className="workspace-author"
+                    value={localAuthor}
+                    onChange={handleAuthorChange}
+                    onBlur={handleAuthorBlur}
+                /><span>  Version: </span><input
+                    type="text"
+                    className="workspace-version"
+                    value={localVersion}
+                    onChange={handleVersionChange}
+                    onBlur={handleVersionBlur}
+                />
+            </div>
             <ReactGrid
                 rows={rows}
                 columns={columns}

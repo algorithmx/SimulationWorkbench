@@ -180,6 +180,24 @@ export class SimulationProject {
         this.validateTableIndex(iT);
         return this.tables[iT].getNumberOfRows();
     }
+    
+    getAuthor(): string {
+        return this.author;
+    }
+
+    setAuthor(author: string): this {
+        this.author = author;
+        return this;
+    }
+
+    getVersion(): string {
+        return this.version;
+    }
+
+    setVersion(version: string): this {
+        this.version = version;
+        return this;
+    }
 
     getName(): string {
         return this.name;

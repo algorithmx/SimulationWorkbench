@@ -31,6 +31,8 @@ export interface MenuBarProps {
     onUpdateSimProj: (prev: SimulationProject) => void;
     onUpdateTools: (tools: Tool[]) => void;
     onUpdateWorkspaceTitle: (newTitle: string) => void;
+    onUpdateWorkspaceAuthor: (newAuthor: string) => void;
+    onUpdateWorkspaceVersion: (newVersion: string) => void;
     onUpdateSystemMessage: (message: string) => void;
 }
 
@@ -45,6 +47,8 @@ export function MenuBar({
     onUpdateSimProj,
     onUpdateTools,
     onUpdateWorkspaceTitle,
+    onUpdateWorkspaceAuthor,
+    onUpdateWorkspaceVersion,
     onUpdateSystemMessage
 }: MenuBarProps) {
     const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
@@ -75,7 +79,7 @@ export function MenuBar({
     const importStateFromJSON = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) {
-          return;
+            return;
         }
         const reader = new FileReader();
         reader.onload = (e: ProgressEvent<FileReader>) => {
@@ -84,9 +88,11 @@ export function MenuBar({
                 if (!importedSimProj.tools || !importedSimProj.tables || !importedSimProj.name) {
                     throw new Error('Invalid JSON structure');
                 }
-                onUpdateTools(tools);
                 onUpdateSimProj(simProj.updateFromParsedData(importedSimProj));
+                onUpdateTools(importedSimProj.tools);
                 onUpdateWorkspaceTitle(importedSimProj.name);
+                onUpdateWorkspaceAuthor(importedSimProj.author);
+                onUpdateWorkspaceVersion(importedSimProj.version);
                 onUpdateSystemMessage(`Workspace "${importedSimProj.name}" loaded successfully from file "${file.name}"!`);
             } catch (error) {
                 onUpdateSystemMessage(`Error parsing JSON: ${(error as Error).message}`);
@@ -115,6 +121,8 @@ export function MenuBar({
             updatedTools.push(newTool);
         }
         onUpdateTools(updatedTools);
+        onUpdateSimProj(simProj.updateTools(updatedTools));
+        
         setIsPopupOpen(false);
         setCurrentEditingTool(null);
     };
