@@ -38,7 +38,7 @@ The Workbench Project is intended to be a more general purpose, cloud native sim
 ## Feature wishlist
 
 - [ ] Core data structure
-  - [ ] Status table
+  - [x] Project manager: `SimulationProject`
   - [ ] Tool flow
   - [ ] Tree of parameters
 
@@ -56,13 +56,14 @@ The Workbench Project is intended to be a more general purpose, cloud native sim
   - [ ] Strategy for task execution priority
 
 - [ ] UI component style
+  - [x] Use [ReactGrid](https://reactgrid.com/)
   - [ ] Consistency
   - [ ] Intelligence
 
 - [ ] Code editor and execution
-  - [ ] Integrate [monaco-editor](https://github.com/react-monaco-editor/react-monaco-editor) or [codejar](https://github.com/antonmedv/codejar)
+  - [x] Integrate [monaco-editor](https://github.com/react-monaco-editor/react-monaco-editor)
   - [ ] Compose and execute tool entirely within front-end
-  - [ ] UI as a calculator for immediate verification
+  - [x] UI as a calculator for immediate verification (python console at bottom)
 
 
 ## Demands are welcome
