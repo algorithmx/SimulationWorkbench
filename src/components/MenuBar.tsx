@@ -124,22 +124,21 @@ export function MenuBar({
         setCurrentEditingTool(tool);
     }, []);
 
-    const handleSaveScript = useCallback((toolName: string, newScript: string, newLanguage: string) => {
+    const handleSaveScript = (toolName: string, newScript: string, newLanguage: string) => {
         if (currentEditingTool) {
             if(currentEditingTool.name === toolName) {
                 currentEditingTool.setScript(newScript);
                 currentEditingTool.setLanguage(newLanguage);
                 const updatedTools = tools.map(tool => tool.name === toolName ? currentEditingTool : tool);
                 onUpdateTools(updatedTools);
-                onUpdateSystemMessage(`Script updated for tool "${toolName}"`);   
-                setCurrentEditingTool(null);
+                onUpdateSystemMessage(`Script updated for tool "${toolName}"`);
             } else {
                 console.error(`Tool name does not match: ${toolName} !== ${currentEditingTool.name}`);
             }
         } else {
             onUpdateSystemMessage(`handleSaveScript: No tool selected for editing.`);
         }
-    }, [onUpdateTools, onUpdateSystemMessage]);
+    };
 
     const [isParamGridPopupOpen, setIsParamGridPopupOpen] = useState(false);
     const [localParamValues, setLocalParamValues] = useState<ParamValue[]>([]);
@@ -248,6 +247,7 @@ export function MenuBar({
                     script={currentEditingTool.scripts}
                     language={currentEditingTool.language}
                     onSave={handleSaveScript}
+                    onClose={() => setCurrentEditingTool(null)}
                 />
             )}
         </>

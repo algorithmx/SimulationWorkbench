@@ -6,13 +6,15 @@ interface ScriptEditorProps {
     script: string;
     language: string;
     onSave: (toolName: string, newScript: string, newLanguage: string) => void;
+    onClose: () => void;
 }
 
 export function ScriptEditor({
     tool, 
     script, 
     language, 
-    onSave
+    onSave,
+    onClose
 }: ScriptEditorProps) {
     const [currentScript, setCurrentScript] = useState(script);
 
@@ -28,6 +30,7 @@ export function ScriptEditor({
 
     const handleClose = () => {
         onSave(tool, currentScript, language);
+        onClose();
     };
 
     return (
