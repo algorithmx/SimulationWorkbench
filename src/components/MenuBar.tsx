@@ -63,7 +63,7 @@ export function MenuBar({
         const a = document.createElement('a');
         a.href = url;
         // Use workspaceTitle for the filename, fallback to 'workspace' if empty
-        const filename = (simProj.getName().trim() || 'workspace').replace(/\s+/g, '_').toLowerCase();
+        const filename = (simProj.getName().trim() || 'workspace').replace(/\s+/g, '_');
         a.download = `${filename}.json`;
         document.body.appendChild(a);
         a.click();

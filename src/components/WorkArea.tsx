@@ -55,7 +55,6 @@ function getCellChangeString(change: CellChange<AllCellTypes>): string {
     }
 }
 
-
 function genStartingSim(tools: Tool[]): SimulationProject {
     return new SimulationProject("Workspace", tools)
         .addTable(
@@ -117,9 +116,6 @@ export function WorkArea({
             setRows(newRows);
             return updatedProj;
         });
-        // onMessage(`Changes ${changes.map(
-        //     c => getCellChangeString(c as CellChange<AllCellTypes>)
-        // ).join(', ')} applied.`);
     };
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,9 +123,10 @@ export function WorkArea({
     };
 
     const handleTitleBlur = () => {
-        setLocalTitle(localTitle);
+        setSimProj(prev => prev.setName(localTitle));
         onMessage(`Workspace title updated to "${localTitle}"`);
     };
+
     const handleAuthorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLocalAuthor(e.target.value);
     };
