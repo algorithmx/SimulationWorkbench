@@ -23,8 +23,9 @@ import {
     Column, Row, Cell, CellStyle, CellChange, Id,
     TextCell, NumberCell, DropdownCell
 } from '@silevis/reactgrid';
+import { ButtonCell, ButtonCellTemplate } from '../components/ButtonCell';
 
-export type AllCellTypes = TextCell | NumberCell | DropdownCell;
+export type AllCellTypes = TextCell | NumberCell | DropdownCell | ButtonCell;
 
 function toColumnName(i: number, iT: number): string {
     return `tab_${iT}__col_${i}`
@@ -358,7 +359,8 @@ export class SimulationProject {
         for (let rowIndex = 1; rowIndex < maxRows; rowIndex++) {
             const cells: AllCellTypes[] = [
                 { type: 'number', value: rowIndex, nonEditable: true },
-                { type: 'text', text: '', nonEditable: true }
+                { type: 'button', text: rowIndex.toString(), nonEditable: true, 
+                    status: '', onClick: () => {} } // TODO: add onClick
             ];
             let cellIndex = 0;
             this.tables.forEach((table) => {

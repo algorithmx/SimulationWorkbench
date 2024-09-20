@@ -29,6 +29,7 @@ import '@silevis/reactgrid/styles.css';
 import { SimulationProject, AllCellTypes, CustomRow, toIndexes } from '../utils/SimulationProject';
 import { Table, ToolCell } from '../utils/Table';
 import { Tool } from '../utils/Tool';
+import { ButtonCell,ButtonCellTemplate  } from './ButtonCell';
 import { MenuBar, MenuBarProps } from './MenuBar';
 const MemoizedMenuBar = React.memo(MenuBar);
 
@@ -36,6 +37,7 @@ export const AllCellTemplates: CellTemplates = {
     'number': new NumberCellTemplate(),
     'text': new TextCellTemplate(),
     'dropdown': new DropdownCellTemplate(),
+    'button': new ButtonCellTemplate()
 }
 
 interface WorkAreaProps {
