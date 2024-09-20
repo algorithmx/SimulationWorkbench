@@ -78,7 +78,7 @@ export class Table {
 
     public setEmptyColumn(nR: number, topCell: string = ''): this {
         this.nCols = 1;
-        this.nRows = nR + 2;
+        this.nRows = nR;
         this.data = [
             [{toolname: topCell, colspan: 1, isOpen: false}],
             [''],
@@ -173,13 +173,15 @@ export class Table {
     }
 
     public addColumn(columnIndex: ColumnIndex, defaultNameRow1: string = 'PNew'): this {
-        this.validateIndices(0, columnIndex);
+        if (columnIndex >= 0) {
+            this.validateIndices(0, columnIndex);
+        }
         this.data = this.data.map((row, rowIndex) => {
             if (rowIndex === 0) {
                 return [{ ...row[0] as ToolCell, colspan: (row[0] as ToolCell).colspan + 1 }];
             }
             const newCell = rowIndex === 1 ? defaultNameRow1 : '';
-            return [...row.slice(0, columnIndex), newCell, ...row.slice(columnIndex)];
+            return [...row.slice(0, columnIndex+1), newCell, ...row.slice(columnIndex+1)];
         });
         this.nCols++;
         return this;
@@ -216,6 +218,16 @@ export class Table {
         return this;
     }
 
+    /**
+     * Calculates cell groups for each column in the table.
+     * A cell group is a contiguous range of cells with the same value in a column.
+     * 
+     * @returns An array of cell group objects, each containing:
+     *          - start: The starting row index of the group
+     *          - end: The ending row index of the group
+     *          - value: The value of the cells in the group
+     *          - col: The column index of the group
+     */
     public calculateCellGroups(): { start: number; end: number; value: CellValue; col: number }[] {
         const groups: { start: number; end: number; value: CellValue; col: number }[] = [];
         const valueRows = this.data.slice(2);

@@ -21,11 +21,12 @@ import React, { useState, useCallback, useEffect } from 'react';
 import {
     ReactGrid, Column, Row, CellChange, DefaultCellTypes,
     Id, HeaderCell, TextCell, NumberCell, DropdownCell,
+    MenuOption, CellLocation, SelectionMode,
     NumberCellTemplate, TextCellTemplate, DropdownCellTemplate,
     ReactGridProps, CellTemplate, Compatible, Uncertain, CellTemplates
 } from '@silevis/reactgrid';
 import '@silevis/reactgrid/styles.css';
-import { SimulationProject, AllCellTypes, CustomRow } from '../utils/SimulationProject';
+import { SimulationProject, AllCellTypes, CustomRow, toIndexes } from '../utils/SimulationProject';
 import { Table, ToolCell } from '../utils/Table';
 import { Tool } from '../utils/Tool';
 import { MenuBar, MenuBarProps } from './MenuBar';
@@ -77,7 +78,6 @@ function genStartingSim(tools: Tool[]): SimulationProject {
                 ])
         );
 }
-
 
 export function WorkArea({
     onDataChange,
@@ -177,6 +177,101 @@ export function WorkArea({
         onMessage(`Script updated for tool "${toolName}"`);
     }, [setSimProj, setTools, onMessage]);
 
+    const handleContextMenu = (
+        // @ts-ignore
+        selectedRowIds: Id[], 
+        // @ts-ignore
+        selectedColIds: Id[],
+        // @ts-ignore
+        selectionMode: SelectionMode, 
+        // @ts-ignore
+        menuOptions: MenuOption[], 
+        // @ts-ignore
+        selectedRanges: Array<CellLocation[]>
+    ) : MenuOption[] =>  {
+        menuOptions = [
+            {
+                id: 'addColumnAfter',
+                label: 'Add Column After',
+                handler: (
+                    // @ts-ignore
+                    selectedRowIds: Id[], 
+                    // @ts-ignore
+                    selectedColIds: Id[], 
+                    selectionMode: SelectionMode, 
+                    selectedRanges: Array<CellLocation[]>) => {
+                    if (selectionMode === 'range' && selectedRanges.length > 0) {
+                        const lastRange = selectedRanges[selectedRanges.length - 1];
+                        const lastCell = lastRange[lastRange.length - 1];
+                        const { tab, col } = toIndexes(lastCell.columnId.toString());
+                        handleSimProjUpdate(simProj.addColumn(tab, col));
+                        onMessage(`Added new column to table ${tab} after column ${col}`);
+                    }
+                }
+            },
+            {
+                id: 'addColumnBefore',
+                label: 'Add Column Before',
+                handler: (
+                    // @ts-ignore
+                    selectedRowIds: Id[], 
+                    // @ts-ignore
+                    selectedColIds: Id[], 
+                    selectionMode: SelectionMode, 
+                    selectedRanges: Array<CellLocation[]>) => {
+                    if (selectionMode === 'range' && selectedRanges.length > 0) {
+                        const lastRange = selectedRanges[selectedRanges.length - 1];
+                        const lastCell = lastRange[lastRange.length - 1];
+                        const { tab, col } = toIndexes(lastCell.columnId.toString());
+                        handleSimProjUpdate(simProj.addColumn(tab, col-1));
+                        onMessage(`Added new column to table ${tab} before column ${col}`);
+                    }
+                }
+            },
+            {
+                id: 'addTableBefore',
+                label: 'Add Table Before',
+                // @ts-ignore
+                handler: (
+                    // @ts-ignore
+                    selectedRowIds: Id[], 
+                    // @ts-ignore
+                    selectedColIds: Id[], 
+                    selectionMode: SelectionMode, 
+                    selectedRanges: Array<CellLocation[]>) => {
+                    if (selectionMode === 'range' && selectedRanges.length > 0) {
+                        const lastRange = selectedRanges[selectedRanges.length - 1];
+                        const lastCell = lastRange[lastRange.length - 1];
+                        const { tab, col } = toIndexes(lastCell.columnId.toString());
+                        handleSimProjUpdate(simProj.addNewTable(tab));
+                        onMessage(`Added new table before table ${tab}`);
+                    }
+                }
+            },
+            {
+                id: 'addTableAfter',
+                label: 'Add Table After',
+                // @ts-ignore
+                handler: (
+                    // @ts-ignore
+                    selectedRowIds: Id[], 
+                    // @ts-ignore
+                    selectedColIds: Id[], 
+                    selectionMode: SelectionMode, 
+                    selectedRanges: Array<CellLocation[]>) => {
+                    if (selectionMode === 'range' && selectedRanges.length > 0) {
+                        const lastRange = selectedRanges[selectedRanges.length - 1];
+                        const lastCell = lastRange[lastRange.length - 1];
+                        const { tab, col } = toIndexes(lastCell.columnId.toString());
+                        handleSimProjUpdate(simProj.addNewTable(tab+1));
+                        onMessage(`Added new table after table ${tab}`);
+                    }
+                }
+            },
+        ];
+        return menuOptions;
+    }
+
     return (
         <section className="work-area">
             <MemoizedMenuBar
@@ -216,6 +311,7 @@ export function WorkArea({
                 columns={columns}
                 onCellsChanged={handleChanges}
                 customCellTemplates={AllCellTemplates}
+                onContextMenu={handleContextMenu}
                 enableRowSelection={false}
                 enableColumnSelection={false}
                 enableRangeSelection={false}

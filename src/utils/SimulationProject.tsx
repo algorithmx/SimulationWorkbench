@@ -30,7 +30,7 @@ function toColumnName(i: number, iT: number): string {
     return `tab_${iT}__col_${i}`
 }
 
-function toIndexes(colName: string) {
+export function toIndexes(colName: string) {
     const col = Number(colName.split('__')[1].split('_')[1]);
     const tab = Number(colName.split('__')[0].split('_')[1])
     return { tab, col }
@@ -175,8 +175,10 @@ export class SimulationProject {
     }
 
     addNewTable(iT: number): this {
-        const nR = this.getNumberOfRows(iT);
-        const newTable = new Table(Date.now()).setEmptyColumn(nR, this.getTable(iT).getTableToolName());
+        const iTa = Math.min(iT, this.tables.length - 1);
+        const toolName = this.getTable(iTa).getTableToolName();
+        const nR = this.getNumberOfRows(iTa);
+        const newTable = new Table(Date.now()).setEmptyColumn(nR, toolName);
         this.tables.splice(iT, 0, newTable);
         return this;
     }
@@ -240,19 +242,22 @@ export class SimulationProject {
         this.tables[iT].addRowLast();
     }
 
-    deleteRow(iT: number, rowIndex: number): void {
+    deleteRow(iT: number, rowIndex: number): this {
         this.validateTableIndex(iT);
         this.tables[iT].deleteRow(rowIndex);
+        return this;
     }
 
-    addColumn(iT: number, columnIndex: number, defaultNameRow1: string = 'PNew'): void {
+    addColumn(iT: number, columnIndex: number, defaultNameRow1: string = 'PNew'): this {
         this.validateTableIndex(iT);
         this.tables[iT].addColumn(columnIndex, defaultNameRow1);
+        return this;
     }
 
-    deleteColumn(iT: number, columnIndex: number): void {
+    deleteColumn(iT: number, columnIndex: number): this {
         this.validateTableIndex(iT);
         this.tables[iT].deleteColumn(columnIndex);
+        return this;
     }
 
     getTableToolName(iT: number): string {
