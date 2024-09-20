@@ -20,7 +20,7 @@
 import { Table, CellValue } from './Table';
 import { Tool } from './Tool';
 import {
-    Column, Row, Cell, CellChange, Id,
+    Column, Row, Cell, CellStyle, CellChange, Id,
     TextCell, NumberCell, DropdownCell
 } from '@silevis/reactgrid';
 
@@ -292,6 +292,32 @@ export class SimulationProject {
         return columns;
     }
 
+    private calculateColumnImmutability(): boolean[] {
+        return this.tables.flatMap((table: Table) => 
+            table.getRow(1).map((cell: CellValue) => cell === '')
+        );
+    }
+
+    private makeCellStyle(text: CellValue): CellStyle {
+        if (typeof text === 'string') {
+            if (text === 'success') {
+                return {color: 'black', background: 'lightgreen'};
+            } else if (text === 'failed') {
+                return {color: 'black', background: 'lightcoral'};
+            } else if (text === 'running') {
+                return {color: 'black', background: 'lightyellow'};
+            } else if (text === 'pending') {
+                return {color: 'black', background: 'lightblue'};
+            } else if (text === 'info') {
+                return {color: 'black', background: 'orange'};
+            } else {
+                return {color: 'black', background: 'white'};
+            }
+        } else {
+            return {color: 'black', background: 'white'};
+        }
+    }
+
     getRows(): CustomRow[] {
         const maxRows = Math.max(...this.tables.map(table => table.getNumberOfRows()));
         const cells0: AllCellTypes[] = [
@@ -313,16 +339,23 @@ export class SimulationProject {
         const rows: CustomRow[] = [
             { rowId: 0, cells: cells0 }
         ];
+        const columnImmutability = this.calculateColumnImmutability();
         for (let rowIndex = 1; rowIndex < maxRows; rowIndex++) {
             const cells: AllCellTypes[] = [
                 { type: 'number', value: rowIndex, nonEditable: true },
                 { type: 'text', text: '', nonEditable: true }
             ];
+            let cellIndex = 0;
             this.tables.forEach((table) => {
-                cells.push(...table.getRow(rowIndex).map(cellValue => ({
-                    type: 'text' as const,
-                    text: cellValue?.toString() ?? ''
-                })));
+                table.getRow(rowIndex).forEach((cellValue : CellValue) => {
+                    cells.push({
+                        type: 'text' as const,
+                        text: cellValue?.toString() ?? '',
+                        nonEditable: (rowIndex!==1) && columnImmutability[cellIndex],
+                        style: this.makeCellStyle(cellValue)
+                    });
+                    cellIndex++;
+                });
             });
             rows.push({
                 rowId: rowIndex.toString(),
