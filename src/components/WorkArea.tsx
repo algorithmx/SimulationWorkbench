@@ -183,9 +183,9 @@ export function WorkArea({
             if (event.ctrlKey && event.shiftKey) {
                 if (event.key === 'ArrowDown') {
                     event.preventDefault();
-                    if (focusCell && Number(focusCell.rowId) > 1) {
-                        onMessage(`Add row above ${focusCell.rowId}`);
-                        handleSimProjUpdate(simProj.addRowAbove(Number(focusCell.rowId)));
+                    if (focusCell && Number(focusCell.rowId) >= 1) {
+                        onMessage(`Add row below ${focusCell.rowId}`);
+                        handleSimProjUpdate(simProj.addRowAbove(Number(focusCell.rowId)+1));
                     }
                 } else if (event.key === 'ArrowRight') {
                     event.preventDefault();
