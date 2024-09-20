@@ -24,10 +24,17 @@ export interface ToolCell {
     isOpen: boolean;
 }
 
+export function isToolCell(cell: CellValue): cell is ToolCell {
+    return typeof cell === 'object' && 'toolname' in cell;
+}
+
 export type CellValue = string | number | ToolCell;
 export type TableRow = CellValue[];
 export type TableData = TableRow[];
 
+type TableId = number;
+type RowIndex = number;
+type ColumnIndex = number;
 
 export class Table {
     private readonly id: number;
@@ -41,6 +48,13 @@ export class Table {
         this.nRows = data.length;
         this.nCols = data.length > 1 ? data[1].length : 0;
     }
+
+    private validateIndices(rowIndex: RowIndex, colIndex: ColumnIndex): void {
+        if (rowIndex < 0 || rowIndex >= this.nRows || colIndex < 0 || colIndex >= this.nCols) {
+            throw new Error('Invalid row or column index');
+        }
+    }
+
 
     public getNumberOfRows(): number {
         return this.nRows;
@@ -57,12 +71,9 @@ export class Table {
         }
         return false;
     }
+
     public getToolName(): string {
-        if (this.data.length > 0 && this.data[0].length > 0) {
-            const firstCell = this.data[0][0] as ToolCell;
-            return firstCell.toolname;
-        }
-        return '';
+        return (this.data[0]?.[0] as ToolCell)?.toolname ?? '';
     }
 
     public setEmptyColumn(nR: number, topCell: string = ''): this {
@@ -80,7 +91,8 @@ export class Table {
         return this.id;
     }
 
-    public getRow(rowIndex: number): TableRow {
+    public getRow(rowIndex: RowIndex): TableRow {
+        this.validateIndices(rowIndex, 0);
         return this.data[rowIndex];
     }
 
@@ -88,53 +100,60 @@ export class Table {
         return this.data;
     }
 
-    public getCell(rowIndex: number, colIndex: number): CellValue  {
+    public getCell(rowIndex: RowIndex, colIndex: ColumnIndex): CellValue {
         if (rowIndex < 0 || rowIndex >= this.nRows || colIndex < 0 || colIndex >= this.nCols) {
-            throw new Error('Invalid row or column index');
-        }
-        return this.data[rowIndex][colIndex];
-    }
-
-    public updateCell(rowIndex: number, colIndex: number, value: string): this {
-        if (rowIndex < 0 || rowIndex >= this.nRows || colIndex < 0 || colIndex >= this.nCols) {
-            throw new Error('Invalid row or column index');
-        }
-        if (rowIndex == 0 ) {
-            if (colIndex == 0) {
-                this.data[0][0] = {...this.data[0][0] as ToolCell, toolname: value, isOpen: false};
+                throw new Error('Invalid row or column index');
             }
-        } else {
-            this.data[rowIndex][colIndex] = value;
+            return this.data[rowIndex][colIndex];
+    }
+
+    public updateCell(rowIndex: RowIndex, colIndex: ColumnIndex, value: string): this {
+        this.validateIndices(rowIndex, colIndex);
+        this.data = this.data.map((row, rIndex) => 
+            rIndex === rowIndex
+                ? row.map((cell, cIndex) => 
+                    cIndex === colIndex 
+                        ? (rIndex === 0 && cIndex === 0 
+                            ? {...cell as ToolCell, toolname: value, isOpen: false}
+                            : value)
+                        : cell
+                )
+                : row
+        );
+        return this;
+    }
+
+    public updateTopCellValue(rowIndex: RowIndex, colIndex: ColumnIndex, value: string): this {
+        this.validateIndices(rowIndex, colIndex);
+        if (rowIndex === 0 && colIndex === 0) {
+            this.data[0][0] = {...this.data[0][0] as ToolCell, toolname: value};
         }
         return this;
     }
 
-    public updateTopCellValue(rowIndex: number, colIndex: number, value: string): this {
-        if (rowIndex == 0 && colIndex == 0) {
-              this.data[0][0] = {...this.data[0][0] as ToolCell, toolname: value};
+    public updateTopCellStatus(rowIndex: RowIndex, colIndex: ColumnIndex, isOpen: boolean): this {
+        this.validateIndices(rowIndex, colIndex);
+        if (rowIndex === 0 && colIndex === 0) {
+            this.data[0][0] = {...this.data[0][0] as ToolCell, isOpen: isOpen};
         }
         return this;
     }
 
-    public updateTopCellStatus(rowIndex: number, colIndex: number, isOpen: boolean): this {
-        if (rowIndex == 0 && colIndex == 0) {
-              this.data[0][0] = {...this.data[0][0] as ToolCell, isOpen: isOpen};
+    public toggleTopCellStatus(rowIndex: RowIndex, colIndex: ColumnIndex): this {
+        this.validateIndices(rowIndex, colIndex);
+        if (rowIndex === 0 && colIndex === 0) {
+            this.data[0][0] = {...this.data[0][0] as ToolCell, isOpen: !(this.data[0][0] as ToolCell).isOpen};
         }
         return this;
     }
 
-    public toggleTopCellStatus(rowIndex: number, colIndex: number): this {
-        if (rowIndex == 0 && colIndex == 0) {
-              this.data[0][0] = {...this.data[0][0] as ToolCell, isOpen: !(this.data[0][0] as ToolCell).isOpen};
-        }
-        return this;
-    }
-
-    public addRowAbove(rowIndex: number): this {
-        if (rowIndex < 0 || rowIndex > this.nRows) {
-            throw new Error('Invalid row index');
-        }
-        this.data.splice(rowIndex, 0, new Array(this.nCols).fill(''));
+    public addRowAbove(rowIndex: RowIndex): this {
+        this.validateIndices(rowIndex, 0);
+        this.data = [
+            ...this.data.slice(0, rowIndex),
+            new Array(this.nCols).fill(''),
+            ...this.data.slice(rowIndex)
+        ];
         this.nRows++;
         return this;
     }
@@ -143,20 +162,19 @@ export class Table {
         return this.addRowAbove(this.nRows);
     }
 
-    public deleteRow(rowIndex: number): this {
-        if (rowIndex <= 0 || rowIndex >= this.nRows) {
-            throw new Error('Invalid row index or attempt to delete header row');
+    public deleteRow(rowIndex: RowIndex): this {
+        this.validateIndices(rowIndex, 0);
+        if (rowIndex <= 1) {
+            throw new Error('Cannot delete header or first data row');
         }
-        this.data.splice(rowIndex, 1);
+        this.data = [...this.data.slice(0, rowIndex), ...this.data.slice(rowIndex + 1)];
         this.nRows--;
         return this;
     }
 
-    public addColumn(columnIndex: number, defaultNameRow1: string = 'PNew'): this {
-        if (columnIndex < 0 || columnIndex > this.nCols) {
-            throw new Error('Invalid column index');
-        }
-        this.data = this.data.map((row, rowIndex): TableRow => {
+    public addColumn(columnIndex: ColumnIndex, defaultNameRow1: string = 'PNew'): this {
+        this.validateIndices(0, columnIndex);
+        this.data = this.data.map((row, rowIndex) => {
             if (rowIndex === 0) {
                 return [{ ...row[0] as ToolCell, colspan: (row[0] as ToolCell).colspan + 1 }];
             }
@@ -166,10 +184,12 @@ export class Table {
         this.nCols++;
         return this;
     }
+    
 
-    public deleteColumn(columnIndex: number): this {
-        if (columnIndex < 0 || columnIndex >= this.nCols || this.nCols === 1) {
-            throw new Error('Invalid column index or cannot delete last column');
+    public deleteColumn(columnIndex: ColumnIndex): this {
+        this.validateIndices(0, columnIndex);
+        if (this.nCols === 1) {
+            throw new Error('Cannot delete last column');
         }
         this.data = this.data.map((row, rowIndex): TableRow => {
             if (rowIndex === 0) {
@@ -217,21 +237,6 @@ export class Table {
         }
 
         return groups;
-    }
-
-    public static createNewTable(
-        toolOptions: Record<string, unknown>, 
-        data: TableData, 
-        onUpdateSystemMessage: (message: string) => void
-    ): Table {
-        const tmp_id = Date.now();
-        const toolName = Object.keys(toolOptions)[0];
-        onUpdateSystemMessage(`Create a new table [${toolName}] (id=${tmp_id})`);
-        return new Table(tmp_id, [
-            [{ toolname: toolName, colspan: 1, isOpen: false }],
-            ['PNew'],
-            ...data.slice(2).map(row => row.map(() => ''))
-        ]);
     }
 
     public getUniqueColumnValues(col: number): CellValue[] {
