@@ -23,6 +23,7 @@ export interface ButtonCell extends Cell {
     type: 'button';
     text: string;
     status?: string;
+    color?: string;
     onClick: (rowIndex: number) => void;
 }
 
@@ -32,6 +33,7 @@ export class ButtonCellTemplate implements CellTemplate<ButtonCell> {
             type: 'button',
             text: uncertainCell.text || '',
             status: uncertainCell.status || '',
+            color: uncertainCell.color || '',
             value: NaN,
             onClick: uncertainCell.onClick || (() => {}),
         };

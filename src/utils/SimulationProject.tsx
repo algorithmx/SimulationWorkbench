@@ -286,7 +286,7 @@ export class SimulationProject {
         if (this.tables.length > 0) {
             columns.push({
                 columnId: 'Tool',
-                width: 40,
+                width: 60,
                 reorderable: false,
                 resizable: false
             });
@@ -334,7 +334,9 @@ export class SimulationProject {
         }
     }
 
-    getRows(): CustomRow[] {
+    getRows(
+        rowButtonCellOnClick: (r:number) => void
+    ): CustomRow[] {
         const maxRows = Math.max(...this.tables.map(table => table.getNumberOfRows()));
         const cells0: AllCellTypes[] = [
             { type: 'text', text: 'Tool', nonEditable: true },
@@ -358,9 +360,11 @@ export class SimulationProject {
         const columnImmutability = this.calculateColumnImmutability();
         for (let rowIndex = 1; rowIndex < maxRows; rowIndex++) {
             const cells: AllCellTypes[] = [
-                { type: 'number', value: rowIndex, nonEditable: true },
-                { type: 'button', text: rowIndex.toString(), nonEditable: true, 
-                    status: '', onClick: () => {} } // TODO: add onClick
+                (rowIndex === 1) ? { type: 'text', text: 'Params', nonEditable: true } :
+                    { type: 'number', value: rowIndex-1, nonEditable: true },
+                (rowIndex === 1) ? { type: 'text', text: '', nonEditable: true } :
+                    { type: 'button', text: rowIndex.toString(), nonEditable: true, 
+                        status: 'play', onClick: rowButtonCellOnClick}
             ];
             let cellIndex = 0;
             this.tables.forEach((table) => {
@@ -382,7 +386,9 @@ export class SimulationProject {
         return rows;
     }
 
-    getColumnsAndRows(): {
+    getColumnsAndRows(
+        rowButtonCellOnClick: (r:number) => void
+    ): {
         columns: Column[];
         rows: CustomRow[];
     } {
@@ -393,7 +399,7 @@ export class SimulationProject {
         if (columns.length === 0) {
             return { columns: [], rows: [] };
         }
-        const rows = this.getRows();
+        const rows = this.getRows(rowButtonCellOnClick);
         return { columns, rows };
     }
 

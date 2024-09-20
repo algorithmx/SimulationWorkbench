@@ -98,13 +98,36 @@ export function WorkArea({
     const [localAuthor, setLocalAuthor] = useState(simProj.getAuthor());
     const [localVersion, setLocalVersion] = useState(simProj.getVersion());
     const [columns, setColumns] = useState<Column[]>(simProj.getColumns());
-    const [rows, setRows] = useState<CustomRow[]>(simProj.getRows());
     const [focusCell, setFucusCell] = useState<CellLocation | null>(null);
 
+    const handleButtonClick = (rowIndex: number) => {
+        setRows((prevRows: CustomRow[]) => {
+            return prevRows.map((row: CustomRow, index: number) => {
+                if (index === rowIndex) {
+                    const newCell1 = {
+                        ...row.cells[1], 
+                        status: (row.cells[1] as ButtonCell).status==='play' ? 'stop' : 'play'
+                    };
+
+                    // TODO trigger the simulation execution for cells in the row
+                    
+                    return {
+                        rowId: row.rowId,
+                        cells: [row.cells[0], newCell1, ...row.cells.slice(2)]
+                    };
+                } else {
+                    return row;
+                }
+            });
+        });
+    }
+
+    // @ts-ignore
+    const [rows, setRows] = useState<CustomRow[]>(simProj.getRows(handleButtonClick));
     // Use useEffect to notify parent about data change
     useEffect(() => {
         if (simProj) {
-            const { columns: newColumns, rows: newRows } = simProj.getColumnsAndRows();
+            const { columns: newColumns, rows: newRows } = simProj.getColumnsAndRows(handleButtonClick);
             setColumns(newColumns);
             setRows(newRows);
             onDataChange(simProj);
@@ -114,7 +137,7 @@ export function WorkArea({
     const handleChanges = (changes: CellChange<DefaultCellTypes>[]) => {
         setSimProj((prev: SimulationProject) => {
             const updatedProj = prev.applyChanges(changes as CellChange<AllCellTypes>[]);
-            const { columns: newColumns, rows: newRows } = updatedProj.getColumnsAndRows();
+            const { columns: newColumns, rows: newRows } = updatedProj.getColumnsAndRows(handleButtonClick);
             setColumns(newColumns);
             setRows(newRows);
             return updatedProj;
@@ -155,7 +178,7 @@ export function WorkArea({
 
     const handleSimProjUpdate = useCallback((updatedSimProj: SimulationProject) => {
         setSimProj(_ => {
-            const { columns: newColumns, rows: newRows } = updatedSimProj.getColumnsAndRows();
+            const { columns: newColumns, rows: newRows } = updatedSimProj.getColumnsAndRows(handleButtonClick);
             setColumns(newColumns);
             setRows(newRows);
             return updatedSimProj;
