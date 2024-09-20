@@ -187,11 +187,20 @@ export class SimulationProject {
         this.stages.push(stage);
     }
 
+    getNumberOfTables(): number {
+        return this.tables.length;
+    }
+
     getNumberOfRows(iT: number = 0): number {
         this.validateTableIndex(iT);
         return this.tables[iT].getNumberOfRows();
     }
-    
+
+    getNumberOfColumns(iT: number = 0): number {
+        this.validateTableIndex(iT);
+        return this.tables[iT].getNumberOfColumns();
+    }
+
     getAuthor(): string {
         return this.author;
     }
@@ -232,19 +241,20 @@ export class SimulationProject {
         this.tables.splice(iT, 1);
     }
 
-    addRowAbove(iT: number, rowIndex: number): void {
-        this.validateTableIndex(iT);
-        this.tables[iT].addRowAbove(rowIndex);
+    addRowAbove(rowIndex: number): this {
+        if (rowIndex > 1) {
+            this.tables = this.tables.map(table => table.addRowAbove(rowIndex));
+        }
+        return this;
     }
 
-    addRowLast(iT: number): void {
-        this.validateTableIndex(iT);
-        this.tables[iT].addRowLast();
+    addRowLast(): this {
+        this.tables = this.tables.map(table =>table.addRowLast());
+        return this;
     }
 
-    deleteRow(iT: number, rowIndex: number): this {
-        this.validateTableIndex(iT);
-        this.tables[iT].deleteRow(rowIndex);
+    deleteRow(rowIndex: number): this {
+        this.tables = this.tables.map(table => table.deleteRow(rowIndex));
         return this;
     }
 

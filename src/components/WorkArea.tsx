@@ -97,6 +97,7 @@ export function WorkArea({
     const [localVersion, setLocalVersion] = useState(simProj.getVersion());
     const [columns, setColumns] = useState<Column[]>(simProj.getColumns());
     const [rows, setRows] = useState<CustomRow[]>(simProj.getRows());
+    const [focusCell, setFucusCell] = useState<CellLocation | null>(null);
 
     // Use useEffect to notify parent about data change
     useEffect(() => {
@@ -177,29 +178,142 @@ export function WorkArea({
         onMessage(`Script updated for tool "${toolName}"`);
     }, [setSimProj, setTools, onMessage]);
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.ctrlKey && event.shiftKey) {
+                if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    if (focusCell && Number(focusCell.rowId) > 1) {
+                        onMessage(`Add row above ${focusCell.rowId}`);
+                        handleSimProjUpdate(simProj.addRowAbove(Number(focusCell.rowId)));
+                    }
+                } else if (event.key === 'ArrowRight') {
+                    event.preventDefault();
+                    if (focusCell) {
+                        const { tab, col } = toIndexes(focusCell.columnId.toString());
+                        handleSimProjUpdate(simProj.addColumn(tab, col));
+                        onMessage(`Added new column to table ${tab} after column ${col}`);
+                    }
+                } else if (event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    if (focusCell) {
+                        const { tab, col } = toIndexes(focusCell.columnId.toString());
+                        handleSimProjUpdate(simProj.addColumn(tab, col-1));
+                        onMessage(`Added new column to table ${tab} before column ${col}`);
+                    }
+                }
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [focusCell, simProj, handleSimProjUpdate]);
+
+    const handleFocusLocationChanged = (location: CellLocation) => {
+        setFucusCell(location);
+    };
+
     const handleContextMenu = (
         // @ts-ignore
-        selectedRowIds: Id[], 
+        selectedRowIds: Id[],
         // @ts-ignore
         selectedColIds: Id[],
         // @ts-ignore
-        selectionMode: SelectionMode, 
+        selectionMode: SelectionMode,
         // @ts-ignore
-        menuOptions: MenuOption[], 
+        menuOptions: MenuOption[],
         // @ts-ignore
         selectedRanges: Array<CellLocation[]>
-    ) : MenuOption[] =>  {
+    ): MenuOption[] => {
         menuOptions = [
             {
+                id: 'deleteTable',
+                label: 'Delete Table',
+                // @ts-ignore
+                handler: (selectedRowIds: Id[], selectedColIds: Id[], selectionMode: SelectionMode, selectedRanges: Array<CellLocation[]>) => {
+                    if (selectionMode === 'range' && selectedRanges.length > 0) {
+                        const lastRange = selectedRanges[selectedRanges.length - 1];
+                        const lastCell = lastRange[lastRange.length - 1];
+                        const { tab, col } = toIndexes(lastCell.columnId.toString());
+                        if (simProj.getNumberOfTables() > 1) {
+                            simProj.deleteTable(tab);
+                            handleSimProjUpdate(simProj);
+                            onMessage(`Deleted table ${tab}`);
+                        }
+                    }
+                }
+            },
+            {
+                id: 'deleteRow',
+                label: 'Delete Row',
+                // @ts-ignore
+                handler: (selectedRowIds: Id[], selectedColIds: Id[], selectionMode: SelectionMode, selectedRanges: Array<CellLocation[]>) => {
+                    if (selectionMode === 'range' && selectedRanges.length > 0) {
+                        const lastRange = selectedRanges[selectedRanges.length - 1];
+                        const lastCell = lastRange[lastRange.length - 1];
+                        const rowIndex = parseInt(lastCell.rowId.toString());
+                        if (rowIndex > 1) {
+                            const { tab, col } = toIndexes(lastCell.columnId.toString());
+                            onMessage(`Deleted row ${rowIndex} from table ${tab}`);
+                            handleSimProjUpdate(simProj.deleteRow(rowIndex));
+                        }
+                    }
+                }
+            },
+            {
+                id: 'addRowAbove',
+                label: 'Add Row Above',
+                // @ts-ignore
+                handler: (selectedRowIds: Id[], selectedColIds: Id[], selectionMode: SelectionMode, selectedRanges: Array<CellLocation[]>) => {
+                    if (selectionMode === 'range' && selectedRanges.length > 0) {
+                        const lastRange = selectedRanges[selectedRanges.length - 1];
+                        const lastCell = lastRange[lastRange.length - 1];
+                        const rowIndex = parseInt(lastCell.rowId.toString());
+                        if (rowIndex > 1) {
+                            onMessage(`Added row above ${rowIndex}`);
+                            handleSimProjUpdate(simProj.addRowAbove(rowIndex));
+                        }
+                    }
+                }
+            },
+            {
+                id: 'addRowBelow',
+                label: 'Add Row Below',
+                // @ts-ignore
+                handler: (selectedRowIds: Id[], selectedColIds: Id[], selectionMode: SelectionMode, selectedRanges: Array<CellLocation[]>) => {
+                    if (selectionMode === 'range' && selectedRanges.length > 0) {
+                        const lastRange = selectedRanges[selectedRanges.length - 1];
+                        const lastCell = lastRange[lastRange.length - 1];
+                        const rowIndex = parseInt(lastCell.rowId.toString());
+                        if (rowIndex > 0) {
+                            onMessage(`Added row below ${rowIndex}`);
+                            handleSimProjUpdate(simProj.addRowAbove(rowIndex + 1));
+                        }
+                    }
+                }
+            },
+            {
+                id: 'deleteColumn',
+                label: 'Delete Column',
+                // @ts-ignore
+                handler: (selectedRowIds: Id[], selectedColIds: Id[], selectionMode: SelectionMode, selectedRanges: Array<CellLocation[]>) => {
+                    if (selectionMode === 'range' && selectedRanges.length > 0) {
+                        const lastRange = selectedRanges[selectedRanges.length - 1];
+                        const lastCell = lastRange[lastRange.length - 1];
+                        const { tab, col } = toIndexes(lastCell.columnId.toString());
+                        if (simProj.getNumberOfColumns(tab) > 1) {
+                            handleSimProjUpdate(simProj.deleteColumn(tab, col));
+                            onMessage(`Deleted column ${col} from table ${tab}`);
+                        }
+                    }
+                }
+            },
+            {
                 id: 'addColumnAfter',
-                label: 'Add Column After',
-                handler: (
-                    // @ts-ignore
-                    selectedRowIds: Id[], 
-                    // @ts-ignore
-                    selectedColIds: Id[], 
-                    selectionMode: SelectionMode, 
-                    selectedRanges: Array<CellLocation[]>) => {
+                label: 'Add Column =>',
+                // @ts-ignore
+                handler: (selectedRowIds: Id[], selectedColIds: Id[], selectionMode: SelectionMode, selectedRanges: Array<CellLocation[]>) => {
                     if (selectionMode === 'range' && selectedRanges.length > 0) {
                         const lastRange = selectedRanges[selectedRanges.length - 1];
                         const lastCell = lastRange[lastRange.length - 1];
@@ -211,33 +325,33 @@ export function WorkArea({
             },
             {
                 id: 'addColumnBefore',
-                label: 'Add Column Before',
+                label: '<= Add Column',
                 handler: (
                     // @ts-ignore
-                    selectedRowIds: Id[], 
+                    selectedRowIds: Id[],
                     // @ts-ignore
-                    selectedColIds: Id[], 
-                    selectionMode: SelectionMode, 
+                    selectedColIds: Id[],
+                    selectionMode: SelectionMode,
                     selectedRanges: Array<CellLocation[]>) => {
                     if (selectionMode === 'range' && selectedRanges.length > 0) {
                         const lastRange = selectedRanges[selectedRanges.length - 1];
                         const lastCell = lastRange[lastRange.length - 1];
                         const { tab, col } = toIndexes(lastCell.columnId.toString());
-                        handleSimProjUpdate(simProj.addColumn(tab, col-1));
+                        handleSimProjUpdate(simProj.addColumn(tab, col - 1));
                         onMessage(`Added new column to table ${tab} before column ${col}`);
                     }
                 }
             },
             {
                 id: 'addTableBefore',
-                label: 'Add Table Before',
+                label: '<= Add Table',
                 // @ts-ignore
                 handler: (
                     // @ts-ignore
-                    selectedRowIds: Id[], 
+                    selectedRowIds: Id[],
                     // @ts-ignore
-                    selectedColIds: Id[], 
-                    selectionMode: SelectionMode, 
+                    selectedColIds: Id[],
+                    selectionMode: SelectionMode,
                     selectedRanges: Array<CellLocation[]>) => {
                     if (selectionMode === 'range' && selectedRanges.length > 0) {
                         const lastRange = selectedRanges[selectedRanges.length - 1];
@@ -250,20 +364,20 @@ export function WorkArea({
             },
             {
                 id: 'addTableAfter',
-                label: 'Add Table After',
+                label: 'Add Table =>',
                 // @ts-ignore
                 handler: (
                     // @ts-ignore
-                    selectedRowIds: Id[], 
+                    selectedRowIds: Id[],
                     // @ts-ignore
-                    selectedColIds: Id[], 
-                    selectionMode: SelectionMode, 
+                    selectedColIds: Id[],
+                    selectionMode: SelectionMode,
                     selectedRanges: Array<CellLocation[]>) => {
                     if (selectionMode === 'range' && selectedRanges.length > 0) {
                         const lastRange = selectedRanges[selectedRanges.length - 1];
                         const lastCell = lastRange[lastRange.length - 1];
                         const { tab, col } = toIndexes(lastCell.columnId.toString());
-                        handleSimProjUpdate(simProj.addNewTable(tab+1));
+                        handleSimProjUpdate(simProj.addNewTable(tab + 1));
                         onMessage(`Added new table after table ${tab}`);
                     }
                 }
@@ -315,6 +429,8 @@ export function WorkArea({
                 enableRowSelection={false}
                 enableColumnSelection={false}
                 enableRangeSelection={false}
+                initialFocusLocation={{ columnId: 'tab_0__col_0', rowId: '1' }}
+                onFocusLocationChanged={handleFocusLocationChanged}
             />
         </section>
     );
