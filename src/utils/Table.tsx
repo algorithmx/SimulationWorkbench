@@ -77,12 +77,15 @@ export class Table {
     }
 
     public setEmptyColumn(nR: number, topCell: string = ''): this {
+        if (nR < 3) {
+            throw new Error(`setEmptyColumn: Invalid number of rows ${nR}`);
+        }
         this.nCols = 1;
         this.nRows = nR;
         this.data = [
             [{toolname: topCell, colspan: 1, isOpen: false}],
             [''],
-            ...Array(nR).fill(Array(this.nCols).fill(''))
+            ...Array(nR-2).fill(Array(this.nCols).fill(''))
         ];
         return this;
     }
