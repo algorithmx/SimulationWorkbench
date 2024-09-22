@@ -151,12 +151,19 @@ export class Table {
     }
 
     public addRowAbove(rowIndex: RowIndex): this {
-        this.validateIndices(rowIndex, 0);
-        this.data = [
-            ...this.data.slice(0, rowIndex),
-            new Array(this.nCols).fill(''),
-            ...this.data.slice(rowIndex)
-        ];
+        if (rowIndex === this.getNumberOfRows()) {
+            this.data.push(
+                new Array(this.nCols).fill(''),
+            );
+        } else {
+            this.validateIndices(rowIndex, 0);
+            this.data = [
+                ...this.data.slice(0, rowIndex),
+                new Array(this.nCols).fill(''),
+                ...this.data.slice(rowIndex)
+            ];
+        }
+        
         this.nRows++;
         return this;
     }

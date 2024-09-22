@@ -206,7 +206,13 @@ export function WorkArea({
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.ctrlKey && event.shiftKey) {
-                if (event.key === 'ArrowDown') {
+                if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    if (focusCell && Number(focusCell.rowId) > 1) {
+                        onMessage(`Add row above ${focusCell.rowId}`);
+                        handleSimProjUpdate(simProj.addRowAbove(Number(focusCell.rowId)));
+                    }
+                } else if (event.key === 'ArrowDown') {
                     event.preventDefault();
                     if (focusCell && Number(focusCell.rowId) >= 1) {
                         onMessage(`Add row below ${focusCell.rowId}`);
