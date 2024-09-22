@@ -190,19 +190,6 @@ export function WorkArea({
         setSimProj((prev: SimulationProject) => prev.updateTools(updatedTools));
     }, []);
 
-    const handleSaveScript = useCallback((toolName: string, newScript: string, newLanguage: string) => {
-        setSimProj((prevSimProj) => {
-            const updatedTools = prevSimProj.getTools().map((tool: Tool) =>
-                tool.name === toolName ? new Tool(tool.name, tool.description, newScript, newLanguage) : tool
-            );
-            return prevSimProj.updateTools(updatedTools);
-        });
-        setTools((prevTools) => prevTools.map(tool =>
-            tool.name === toolName ? new Tool(tool.name, tool.description, newScript, newLanguage) : tool
-        ));
-        onMessage(`Script updated for tool "${toolName}"`);
-    }, [setSimProj, setTools, onMessage]);
-
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.ctrlKey && event.shiftKey) {
