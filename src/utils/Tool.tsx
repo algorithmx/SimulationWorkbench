@@ -11,8 +11,20 @@ export class Tool {
         this.language = language;
     }
 
+    getScript(): string {
+        return this.scripts;
+    }
+
+    getLanguage(): string {
+        return this.language;
+    }
+
     getName(): string {
         return this.name;
+    }
+
+    getDescription(): string {
+        return this.description;
     }
 
     setScript(script: string): this {

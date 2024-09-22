@@ -33,10 +33,18 @@ export function ScriptEditor({
         onClose();
     };
 
+    const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        onSave(tool, currentScript, event.target.value);
+    };
+
     return (
         <div className="script-editor-overlay">
             <div className="script-editor-content">
                 <h2>Edit Script for {tool}</h2>
+                <select value={language} onChange={handleLanguageChange}>
+                    <option value="python">Python</option>
+                    <option value="tcl">Tcl</option>
+                </select>
                 <Editor
                     height="60vh"
                     defaultLanguage={language}
