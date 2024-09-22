@@ -37,34 +37,38 @@ The Workbench Project is intended to be a more general purpose, cloud native sim
 
 ## Feature wishlist
 
+- [ ] Code editor and execution
+  - [ ] (!!!) Compose and execute a unit simulation entirely within front-end
+  - [x] Integrate [monaco-editor](https://github.com/react-monaco-editor/react-monaco-editor)
+  - [x] UI as a calculator for immediate verification (python console at bottom)
+
 - [ ] Core data structure
+  - [ ]  (!!!) Tool dependency and flow
+    - [ ] DAG
+    - [ ] Parallel execution of simulation tasks
+  - [ ] Tree of parameters (to fold the table)
   - [x] Project manager: `SimulationProject`
-  - [ ] Tool flow
-  - [ ] Tree of parameters
-
-- [ ] Tool dependency
-  - [ ] DAG modelling
-  - [ ] Parallel execution of simulation tasks
-
-- [ ] Logging
-  - [ ] Display log for every action from user in system message window
-  - [ ] Exporting log
-  - [ ] Workspace reconstruction from log
-
-- [ ] Control
-  - [ ] Log as script
-  - [ ] Strategy for task execution priority
 
 - [ ] UI component style
   - [x] Use [ReactGrid](https://reactgrid.com/)
   - [ ] Consistency
   - [ ] Intelligence
 
-- [ ] Code editor and execution
-  - [x] Integrate [monaco-editor](https://github.com/react-monaco-editor/react-monaco-editor)
-  - [ ] Compose and execute tool entirely within front-end
-  - [x] UI as a calculator for immediate verification (python console at bottom)
+- [ ] Logging
+  - [ ] (!!!) Roll-back / undo
+  - [ ] Display log for every action from user in system message window
+  - [ ] Exporting log
+  - [ ] Workspace reconstruction from log
+  - [ ] Log as script
 
+- [ ] Folder content explorer
+  - [ ] Interact with the simulation server
+  - [ ] Investigate file content in an elementary simulation project
+  - [ ] Integrate Box-UI [Content Explorer](https://developer.box.com/guides/embed/ui-elements/explorer/)
+  - [ ] Integrate [react-file-tree](https://github.com/jossmac/react-file-tree)
+
+- [ ] Control
+  - [ ] Strategy for task execution priority
 
 ## Demands are welcome
 
