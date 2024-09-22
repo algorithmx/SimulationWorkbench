@@ -126,10 +126,10 @@ export function MenuBar({
 
     const handleSaveScript = (toolName: string, newScript: string, newLanguage: string) => {
         if (currentEditingTool) {
-            if(currentEditingTool.name === toolName) {
-                currentEditingTool.setScript(newScript);
-                currentEditingTool.setLanguage(newLanguage);
-                const updatedTools = tools.map(tool => tool.name === toolName ? currentEditingTool : tool);
+            if(currentEditingTool.getName() === toolName) {
+                const newTool1 = new Tool(toolName, '', newScript, newLanguage);
+                setCurrentEditingTool(newTool1);
+                const updatedTools = tools.map(tool => tool.name === toolName ? newTool1 : tool);
                 onUpdateTools(updatedTools);
                 onUpdateSystemMessage(`Script updated for tool "${toolName}"`);
             } else {
